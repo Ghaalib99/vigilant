@@ -31,7 +31,7 @@ function DashboardLayout({ children }) {
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <aside className="w-16 text-white bg-ring border-r flex flex-col items-center py-4 space-y-4 pt-20">
+      <aside className="w-16 text-white bg-primary border-r flex flex-col items-center py-4 space-y-4 pt-20">
         <TooltipProvider>
           {menuItems.map(({ icon: Icon, label, href }, index) => (
             <Tooltip key={index}>

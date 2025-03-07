@@ -5,17 +5,15 @@ import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
-import { PasswordInput } from "@/components/PasswordInput";
 import { useAuth } from "@/app/hooks/useAuth";
 
-const Signin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { login, loading, error } = useAuth();
+const OTPVerification = () => {
+  const [otp, setOtp] = useState("");
+  const { verifyOtp, loading, error } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password);
+    await verifyOtp(otp);
   };
 
   return (
@@ -29,45 +27,35 @@ const Signin = () => {
           className="mx-auto mb-4"
         />
         <p className="text-sm text-gray-600 text-center">
-          Fill the fields below to login to your admin dashboard.
+          Please enter the 6-digit OTP sent to your email.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="otp">OTP</Label>
             <Input
-              id="email"
-              type="email"
+              id="otp"
+              type="text"
               className="h-11"
-              placeholder="Input email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              maxLength={6}
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <PasswordInput
-              id="password"
-              placeholder="Input password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          {/* {error && <p className="text-sm text-red-500">{error}</p>} */}
+          {error && <p className="text-sm text-red-500">{error}</p>}
 
           <Button type="submit" className="w-full h-12" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Verifying..." : "Verify OTP"}
           </Button>
         </form>
 
         <p className="text-sm text-gray-600 text-center">
-          Don’t have an account?{" "}
-          <Link href="/signup" className="text-blue-500 hover:underline">
-            Sign up
+          Didn’t receive the OTP?{" "}
+          <Link href="/resend-otp" className="text-blue-500 hover:underline">
+            Resend OTP
           </Link>
         </p>
       </div>
@@ -75,4 +63,4 @@ const Signin = () => {
   );
 };
 
-export default Signin;
+export default OTPVerification;
