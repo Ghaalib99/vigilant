@@ -35,7 +35,7 @@ const CustomerService = () => {
       header: "Status",
       render: (row) => (
         <span
-          className={`px-2 py-1 text-sm rounded-full ${
+          className={`px-2 py-1 text-sm rounded-sm ${
             row.status === "Resolved"
               ? "bg-green-100 text-green-800"
               : "bg-red-100 text-red-800"
