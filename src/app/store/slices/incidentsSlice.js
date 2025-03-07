@@ -13,6 +13,17 @@ export const getIncidents = createAsyncThunk(
   }
 );
 
+export const saveIncidentId = createAsyncThunk(
+  "incidents/saveIncidentId",
+  async (incidentId, { rejectWithValue }) => {
+    try {
+      return incidentId;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const incidentsSlice = createSlice({
   name: "incidents",
   initialState: {
@@ -34,6 +45,9 @@ const incidentsSlice = createSlice({
       .addCase(getIncidents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(saveIncidentId.fulfilled, (state, action) => {
+        state.selectedIncidentId = action.payload;
       });
   },
 });
