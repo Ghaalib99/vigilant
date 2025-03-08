@@ -1,5 +1,5 @@
 "use client";
-import { fetchIncidents } from "@/app/services/incidentService";
+import { acceptIncident, fetchIncidents } from "@/app/services/incidentService";
 import {
   getIncidents,
   saveIncidentId,
@@ -9,13 +9,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { SearchCheckIcon } from "lucide-react";
+import { SearchCheckIcon, Stamp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Loading from "@/components/Loading";
 
 const CustomerService = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const authToken = useSelector((state) => state.auth.token);
   const incidentsState = useSelector((state) => state.incidents);
+
   const {
     incidents = [],
     loading = false,
@@ -87,33 +90,43 @@ const CustomerService = () => {
       key: "status",
       header: "Status",
       render: (row) => (
-        <span className="px-3 py-1 text-sm rounded-full font-medium bg-blue-100 text-blue-800">
-          {row.status}
-        </span>
+        <span className="px-3 py-1 text-sm  text-blue-800">{row.status}</span>
       ),
     },
     {
       key: "action",
       header: "Action",
       render: (row) => (
-        <button
+        <Button
           onClick={(e) => {
             e.stopPropagation();
-            handleViewDetails(row);
+            handleAcceptIncident(row);
           }}
-          className="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md transition-colors duration-200"
+          className="flex items-center px-3 py-1 bg-primary hover:opacity-40 text-white rounded-sm transition-colors duration-200 font-normal"
         >
-          View Details
-        </button>
+          <Stamp className="h-5 w-5 mr-2" />
+          Accept
+        </Button>
       ),
     },
   ];
 
+  const handleAcceptIncident = async (row) => {
+    try {
+      const response = await acceptIncident(authToken, row.incidentId);
+      console.log(response);
+    } catch (error) {
+      console.error("Error accepting incident:", error);
+      // setError(error.message || "Failed to incident");
+      setError("Incident has been responded to by another personnel");
+    }
+  };
+
   const handleViewDetails = (row) => {
-    const incidentId = row.incidentId;
-    console.log("incidentId:", incidentId);
-    dispatch(saveIncidentId(incidentId));
-    router.push(`/customer-service/incident-detail/${incidentId}`);
+    dispatch(saveIncidentId(row.incidentId));
+    router.push(
+      `/dashboard/customer-service/incident-detail/${row.incidentId}`
+    );
   };
 
   const handleRowClick = (row) => {
@@ -159,9 +172,7 @@ const CustomerService = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
+          <Loading />
         ) : error ? (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
             <p>{error}</p>

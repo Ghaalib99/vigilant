@@ -67,3 +67,49 @@ export const acceptIncident = async (authToken, id) => {
     throw error;
   }
 };
+
+export const addComment = async (authToken, payload) => {
+  try {
+    const response = await fetch(`${baseUrl}/admin/comment/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+        body: payload,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error adding comment:", error.message);
+    throw error;
+  }
+};
+
+export const assignIncident = async (authToken, payload) => {
+  try {
+    const response = await fetch(`${baseUrl}/admin/incidents/make-assignment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+        body: payload,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error adding comment:", error.message);
+    throw error;
+  }
+};
