@@ -7,6 +7,7 @@ import {
   otpVerificationStart,
   otpVerificationSuccess,
   otpVerificationFailure,
+  signout,
 } from "../store/slices/authSlice";
 
 export const useAuth = () => {
@@ -16,6 +17,7 @@ export const useAuth = () => {
     (state) => state.auth
   );
 
+  // Login function
   const login = async (email, password) => {
     dispatch(loginStart());
 
@@ -33,21 +35,17 @@ export const useAuth = () => {
       const data = await response.json();
       console.log("Login response:", data);
 
-      // Check if the login was successful
       if (data.success === true) {
-        // Infer OTP requirement based on the response
-        const otpRequired = data.message === "OTP sent successfully"; // Check the message
+        const otpRequired = data.message === "OTP sent successfully";
 
         if (otpRequired) {
-          // If OTP is required, save the email and redirect to the OTP verification page
           dispatch(
             loginSuccess({ token: null, user: null, email, otpRequired })
           );
           router.push("/otp-verification");
         } else {
-          // If OTP is not required, save the token, user, and email, then redirect to the dashboard
-          const authToken = data?.token; // Adjust this based on the actual API response
-          const user = data?.user; // Adjust this based on the actual API response
+          const authToken = data?.token;
+          const user = data?.user;
 
           if (!authToken) {
             throw new Error("Authentication token not found");
@@ -68,6 +66,7 @@ export const useAuth = () => {
     }
   };
 
+  // verify otp
   const verifyOtp = async (otp) => {
     dispatch(otpVerificationStart());
     try {
@@ -114,5 +113,12 @@ export const useAuth = () => {
     }
   };
 
-  return { login, verifyOtp, loading, error, otpRequired };
+  // Logout function
+  const logout = () => {
+    console.log("logout");
+    dispatch(signout());
+    router.push("/");
+  };
+
+  return { login, verifyOtp, logout, loading, error, otpRequired };
 };

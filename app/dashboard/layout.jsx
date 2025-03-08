@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import {
   Home,
   Settings,
@@ -7,72 +8,73 @@ import {
   Bell,
   Search,
   LogOut,
+  Menu,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 import Link from "next/link";
+import { useAuth } from "../hooks/useAuth";
 
 function DashboardLayout({ children }) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { logout } = useAuth();
+
   const menuItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
-    { icon: Users, label: "Customer Service", href: "/customer-service" },
-    { icon: BarChart2, label: "Analytics", href: "/analytics" },
-    { icon: Settings, label: "Settings", href: "/settings" },
+    {
+      icon: Users,
+      label: "Customer Service",
+      href: "/dashboard/customer-service",
+    },
+    { icon: BarChart2, label: "Analytics", href: "/dashboard/analytics" },
+    { icon: Settings, label: "Settings", href: "dashboard/settings" },
   ];
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <aside className="w-16 text-white bg-primary border-r flex flex-col items-center py-4 space-y-4 pt-20">
-        <TooltipProvider>
-          {menuItems.map(({ icon: Icon, label, href }, index) => (
-            <Tooltip key={index}>
-              <TooltipTrigger asChild>
-                <Link href={href}>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="hover:bg-gray-100"
-                  >
-                    <Icon className="h-5 w-5" />
-                  </Button>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>{label}</p>
-              </TooltipContent>
-            </Tooltip>
-          ))}
-        </TooltipProvider>
+      <aside
+        className={`${
+          isSidebarOpen ? "w-64" : "w-16"
+        } text-white bg-primary border-r flex flex-col items-center py-4 space-y-4 pt-20 transition-all duration-300 ease-in-out`}
+      >
+        {/* Toggle Button */}
+        <Button
+          onClick={toggleSidebar}
+          variant="ghost"
+          size="icon"
+          className="absolute top-4 left-4 hover:bg-gray-100"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+
+        {/* Menu Items */}
+        {menuItems.map(({ icon: Icon, label, href }, index) => (
+          <Link
+            key={index}
+            href={href}
+            className="w-full flex items-center space-x-4 px-4 py-2 hover:bg-gray-100 hover:text-primary rounded-md"
+          >
+            <Icon className="h-5 w-5" />
+            {isSidebarOpen && <span className="text-sm">{label}</span>}
+          </Link>
+        ))}
 
         {/* Bottom actions */}
-        <div className="mt-auto space-y-4">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href="/logout">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="hover:bg-gray-100"
-                  >
-                    <LogOut className="h-5 w-5" />
-                  </Button>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Logout</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        <div className="mt-auto space-y-4 w-full px-4">
+          <Button
+            onClick={logout}
+            variant="ghost"
+            className="w-full flex justify-start items-center space-x-4 px-4 py-2 hover:bg-gray-100 rounded-md"
+          >
+            <LogOut className="h-5 w-5" />
+            {isSidebarOpen && <span className="text-sm">Logout</span>}
+          </Button>
         </div>
       </aside>
 

@@ -42,7 +42,7 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
-    logout: (state) => {
+    signout: (state) => {
       state.token = null;
       state.user = null;
       state.email = null;
@@ -58,6 +58,6 @@ export const {
   otpVerificationStart,
   otpVerificationSuccess,
   otpVerificationFailure,
-  logout,
+  signout,
 } = authSlice.actions;
 export default authSlice.reducer;
