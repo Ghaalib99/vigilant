@@ -24,8 +24,8 @@ function DashboardLayout({ children }) {
     { icon: Home, label: "Dashboard", href: "/dashboard" },
     {
       icon: Users,
-      label: "Customer Service",
-      href: "/dashboard/customer-service",
+      label: "Incidents",
+      href: "/dashboard/incidents",
     },
     { icon: BarChart2, label: "Analytics", href: "/dashboard/analytics" },
     { icon: Settings, label: "Settings", href: "dashboard/settings" },

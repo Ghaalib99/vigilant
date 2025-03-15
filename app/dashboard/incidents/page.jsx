@@ -1,10 +1,10 @@
-import CustomerService from "@/app/screens/customer-service/CustomerService";
+import Incidents from "@/app/screens/incidents/Incidents";
 import React from "react";
 
 const page = () => {
   return (
     <>
-      <CustomerService />
+      <Incidents />
     </>
   );
 };

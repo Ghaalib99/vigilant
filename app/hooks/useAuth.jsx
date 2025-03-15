@@ -22,11 +22,18 @@ export const useAuth = () => {
     dispatch(loginStart());
 
     try {
-      const response = await fetch("http://24.199.107.202/admin/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        "https://api.npfvigilant.ng/admin/auth/login",
+        {
+          // mode: "no-cors",
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Invalid credentials");
@@ -71,10 +78,11 @@ export const useAuth = () => {
     dispatch(otpVerificationStart());
     try {
       const response = await fetch(
-        "http://24.199.107.202/admin/auth/verify-auth-token",
+        "https://api.npfvigilant.ng/admin/auth/verify-auth-token",
         {
           method: "POST",
           headers: {
+            Accept: "application/json",
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ otp, email }),
@@ -97,6 +105,7 @@ export const useAuth = () => {
               user: user,
             })
           );
+
           router.push("/dashboard");
         } else {
           throw new Error("Authentication token not found");

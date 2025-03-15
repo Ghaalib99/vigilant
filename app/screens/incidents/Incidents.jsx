@@ -2,6 +2,8 @@
 import { acceptIncident, fetchIncidents } from "@/app/services/incidentService";
 import {
   getIncidents,
+  saveAssignmentId,
+  saveBankId,
   saveIncidentId,
 } from "@/app/store/slices/incidentsSlice";
 import TableComponent from "@/components/TableComponent";
@@ -9,15 +11,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { SearchCheckIcon, Stamp } from "lucide-react";
+import { SearchCheckIcon, Stamp, View } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading";
+import { useAuth } from "@/app/hooks/useAuth";
 
-const CustomerService = () => {
+const Incidents = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const authToken = useSelector((state) => state.auth.token);
   const incidentsState = useSelector((state) => state.incidents);
+  const { user } = useAuth();
 
   const {
     incidents = [],
@@ -30,6 +34,7 @@ const CustomerService = () => {
   useEffect(() => {
     if (authToken) {
       dispatch(getIncidents(authToken));
+      // console.log(user);
     }
   }, [dispatch, authToken]);
 
@@ -39,6 +44,8 @@ const CustomerService = () => {
       .reverse()
       .map((item) => ({
         incidentId: item.incident?.id || "-",
+        assignmentId: item.id || "-",
+        bankId: item.incident?.bank?.id,
         reportedBy:
           item.incident?.user?.first_name +
             " " +
@@ -72,6 +79,20 @@ const CustomerService = () => {
         <span className="font-medium text-gray-900">{row.incidentId}</span>
       ),
     },
+    {
+      key: "assignmentId",
+      header: "Assignment ID",
+      render: (row) => (
+        <span className="font-medium text-gray-900">{row.assignmentId}</span>
+      ),
+    },
+    {
+      key: "bankId",
+      header: "Bank ID",
+      render: (row) => (
+        <span className="font-medium text-gray-900">{row.bankId}</span>
+      ),
+    },
     { key: "reportedBy", header: "Reported By" },
     {
       key: "dateCreated",
@@ -99,13 +120,14 @@ const CustomerService = () => {
       render: (row) => (
         <Button
           onClick={(e) => {
-            e.stopPropagation();
-            handleAcceptIncident(row);
+            // e.stopPropagation();
+            // handleAcceptIncident(row);
+            handleViewDetails(row);
           }}
           className="flex items-center px-3 py-1 bg-primary hover:opacity-40 text-white rounded-sm transition-colors duration-200 font-normal"
         >
-          <Stamp className="h-5 w-5 mr-2" />
-          Accept
+          <View className="h-5 w-5 mr-2" />
+          View
         </Button>
       ),
     },
@@ -124,9 +146,9 @@ const CustomerService = () => {
 
   const handleViewDetails = (row) => {
     dispatch(saveIncidentId(row.incidentId));
-    router.push(
-      `/dashboard/customer-service/incident-detail/${row.incidentId}`
-    );
+    dispatch(saveAssignmentId(row.assignmentId));
+    dispatch(saveBankId(row.bankId));
+    router.push(`/dashboard/incidents/incident-detail/${row.incidentId}`);
   };
 
   const handleRowClick = (row) => {
@@ -218,4 +240,4 @@ const CustomerService = () => {
   );
 };
 
-export default CustomerService;
+export default Incidents;

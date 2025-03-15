@@ -2,11 +2,14 @@ import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { addComment } from "@/app/services/incidentService";
+import { useSelector } from "react-redux";
 
-export const CommentsTab = ({ incidentId, authToken }) => {
+export const CommentsTab = () => {
   const [comment, setComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
   const [comments, setComments] = useState([]);
+  const incidentId = useSelector((state) => state.incidents.selectedIncidentId);
+  const authToken = useSelector((state) => state.auth.token);
 
   const handleAddComment = async () => {
     if (!comment.trim()) return;

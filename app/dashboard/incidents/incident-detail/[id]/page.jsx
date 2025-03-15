@@ -1,4 +1,4 @@
-import IncidentDetail from "@/app/screens/customer-service/IncidentDetail";
+import IncidentDetail from "@/app/screens/incidents/IncidentDetail";
 import React from "react";
 
 const page = () => {
