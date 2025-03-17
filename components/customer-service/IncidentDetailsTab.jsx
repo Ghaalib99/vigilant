@@ -9,7 +9,12 @@ export const IncidentDetailsTab = ({ incident }) => {
           {incident.details || "No description provided"}
         </p>
       </div>
-
+      <div className="col-span-2">
+        <h3 className="text-lg font-medium text-gray-900 mb-2">Bank</h3>
+        <p className="text-gray-700 bg-white p-4 rounded-md border border-gray-200">
+          {incident?.bank?.bank_name}
+        </p>
+      </div>
       <div>
         <p className="text-gray-600 text-sm flex items-center mb-1">
           <User className="h-4 w-4 mr-1" /> Account Name

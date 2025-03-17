@@ -46,6 +46,9 @@ const IncidentDetail = ({ params }) => {
     (state) => state.incidents.selectedAssignmentId
   );
   const bankId = useSelector((state) => state.incidents.selectedBankId);
+  const acceptanceStatus = useSelector(
+    (state) => state.incidents.selectedIncidentStatus
+  );
 
   const authToken = useSelector((state) => state.auth.token);
 
@@ -91,7 +94,8 @@ const IncidentDetail = ({ params }) => {
         segment_id: selectedSegment.id.toString(),
         incident_id: incidentId.toString(),
         // bank_id: selectedBank ? selectedBank.toString() : "",
-        bank_id: bankId ? bankId.toString() : "",
+        bank_id:
+          selectedOption === "bank" ? (bankId ? bankId.toString() : "") : "",
         entity_id: entityIdToUse.toString(),
         comment: comment,
       };
@@ -389,15 +393,6 @@ const IncidentDetail = ({ params }) => {
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-4 mt-8">
           <Button
-            onClick={handleAssignModal}
-            disabled={!hasResponded}
-            className="py-2 h-11"
-          >
-            <User className="h-5 w-5 mr-2" />
-            Assign
-          </Button>
-
-          <Button
             onClick={() => setIsResponseModalOpen(true)}
             disabled={hasResponded}
             className="py-2 h-11 bg-green-600 hover:bg-green-700 text-white"
@@ -405,6 +400,16 @@ const IncidentDetail = ({ params }) => {
             <Mouse className="h-5 w-5 mr-2" />
             Respond
           </Button>
+          {acceptanceStatus !== "Pending" && (
+            <Button
+              onClick={handleAssignModal}
+              // disabled={!hasResponded}
+              className="py-2 h-11"
+            >
+              <User className="h-5 w-5 mr-2" />
+              Assign
+            </Button>
+          )}
         </div>
       </div>
       <AssignModal
@@ -420,29 +425,57 @@ const IncidentDetail = ({ params }) => {
       />
       {/* Response Modal */}
       <Dialog open={isResponseModalOpen} onOpenChange={setIsResponseModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Respond to Incident</DialogTitle>
-            <DialogDescription>
-              Would you like to accept or decline this incident?
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center space-x-4 mt-4">
-            <Button
-              onClick={() => handleResponse("accept")}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              Accept
-            </Button>
-            <Button
-              onClick={() => handleResponse("decline")}
-              variant="outline"
-              className="border-red-600 text-red-600 hover:bg-red-50"
-            >
-              Decline
-            </Button>
-          </div>
-        </DialogContent>
+        {acceptanceStatus === "Pending" ? (
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Respond to Incident</DialogTitle>
+              <DialogDescription>
+                Would you like to accept or decline this incident?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-center space-x-4 mt-4">
+              <Button
+                onClick={() => handleResponse("accept")}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                Accept
+              </Button>
+              <Button
+                onClick={() => handleResponse("decline")}
+                variant="outline"
+                className="border-red-600 text-red-600 hover:bg-red-50"
+              >
+                Decline
+              </Button>
+            </div>
+          </DialogContent>
+        ) : (
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Incident Already Responded To</DialogTitle>
+              <div className="pt-8">
+                You can no longer respond to this incident because it has
+                previously been{" "}
+                {acceptanceStatus === "Accepted" ? "accepted" : "declined"}.
+                {acceptanceStatus === "Accepted" ? (
+                  <div className="mt-2 w-full">
+                    <p>You can proceed to assign</p>
+                    <Button
+                      onClick={handleAssignModal}
+                      className="py-2 h-11 mt-3 w-full"
+                    >
+                      <User className="h-5 w-5 mr-2" />
+                      Assign
+                    </Button>
+                  </div>
+                ) : (
+                  ""
+                )}
+                .
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        )}
       </Dialog>
     </div>
   );
