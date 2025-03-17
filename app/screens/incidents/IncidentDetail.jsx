@@ -37,6 +37,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import toast from "react-hot-toast";
 
 const IncidentDetail = ({ params }) => {
   const router = useRouter();
@@ -105,9 +106,11 @@ const IncidentDetail = ({ params }) => {
       const response = await assignIncident(authToken, JSON.stringify(payload));
 
       console.log(response);
+      toast.success("incident assigned successfully");
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error assigning incident:", error);
+      toast.error("Failed to assign incident");
       setError(error.message || "Failed to assign incident");
     } finally {
       setSubmittingComment(false);
@@ -221,10 +224,9 @@ const IncidentDetail = ({ params }) => {
     }
   };
 
-  const getBanks = async () => {
+  const getBanks = useCallback(async () => {
     try {
       setLoading(true);
-      // Check if we already have banks data
       if (banks && banks.length > 0) {
         setLoading(false);
         return;
@@ -244,7 +246,7 @@ const IncidentDetail = ({ params }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [authToken, banks]);
 
   const getEntities = async () => {
     try {
@@ -323,6 +325,11 @@ const IncidentDetail = ({ params }) => {
 
   const handleAssignModal = async () => {
     setIsModalOpen(true);
+  };
+
+  const assignFromResponse = () => {
+    setIsResponseModalOpen(false);
+    handleAssignModal();
   };
 
   return (
@@ -461,7 +468,7 @@ const IncidentDetail = ({ params }) => {
                   <div className="mt-2 w-full">
                     <p>You can proceed to assign</p>
                     <Button
-                      onClick={handleAssignModal}
+                      onClick={assignFromResponse}
                       className="py-2 h-11 mt-3 w-full"
                     >
                       <User className="h-5 w-5 mr-2" />

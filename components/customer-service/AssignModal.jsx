@@ -3,13 +3,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import ModalComponent from "@/components/ModalComponent";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import Select from "react-select";
 
 export const AssignModal = ({
   isModalOpen,
@@ -18,11 +12,15 @@ export const AssignModal = ({
   banks,
   segments,
   getSegments,
+  selectedSegment,
+  setSelectedSegment,
 }) => {
   const [selectedOption, setSelectedOption] = useState("bank");
   const [selectedBank, setSelectedBank] = useState("");
   const [comment, setComment] = useState("");
+  const [loadingSegments, setLoadingSegments] = useState(false);
 
+  // Memoize bank options for react-select
   const bankOptions = useMemo(() => {
     if (!banks || !Array.isArray(banks)) return [];
     return banks.map((bank) => ({
@@ -31,20 +29,37 @@ export const AssignModal = ({
     }));
   }, [banks]);
 
+  // Fetch segments when the modal opens or the selected option changes
   useEffect(() => {
     if (isModalOpen && selectedOption) {
-      getSegments(selectedOption);
+      setLoadingSegments(true);
+      getSegments(selectedOption).finally(() => {
+        setLoadingSegments(false);
+      });
     }
   }, [selectedOption, isModalOpen, getSegments]);
 
-  const handleOptionChange = useCallback((option) => {
-    setSelectedOption(option);
-    setSelectedSegment("");
-    if (option === "police") {
-      setSelectedBank("");
-    }
-  }, []);
+  // Handle option change (bank or police)
+  const handleOptionChange = useCallback(
+    (option) => {
+      setSelectedOption(option);
+      setSelectedSegment("");
+      if (option === "police") {
+        setSelectedBank("");
+      }
+    },
+    [setSelectedSegment]
+  );
 
+  // Handle reset form
+  const resetForm = useCallback(() => {
+    setSelectedOption("bank");
+    setSelectedBank("");
+    setComment("");
+    setSelectedSegment("");
+  }, [setSelectedSegment]);
+
+  // Handle form submission
   const handleSubmit = useCallback(() => {
     if (selectedOption === "bank") {
       handleAssign(selectedOption, comment, selectedBank);
@@ -52,7 +67,20 @@ export const AssignModal = ({
       handleAssign(selectedOption, comment);
     }
     setIsModalOpen(false);
-  }, [selectedOption, comment, selectedBank, handleAssign, setIsModalOpen]);
+    resetForm();
+  }, [
+    selectedOption,
+    comment,
+    selectedBank,
+    handleAssign,
+    setIsModalOpen,
+    resetForm,
+  ]);
+
+  // Handle bank selection change
+  const handleBankChange = useCallback((selectedOption) => {
+    setSelectedBank(selectedOption?.value || "");
+  }, []);
 
   return (
     <ModalComponent
@@ -81,24 +109,19 @@ export const AssignModal = ({
         {selectedOption === "bank" && (
           <div className="mt-4 mb-6">
             <Label htmlFor="bank-select">Select Bank</Label>
-            <Select value={selectedBank} onValueChange={setSelectedBank}>
-              <SelectTrigger id="bank-select" className="mt-2 w-full">
-                <SelectValue placeholder="Select a bank" />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.isArray(banks) && banks.length > 0 ? (
-                  banks.map((bank) => (
-                    <SelectItem key={bank.id} value={bank.id.toString()}>
-                      {bank.bank_name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="loading" disabled>
-                    No banks available
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+            <Select
+              id="bank-select"
+              options={bankOptions}
+              onChange={handleBankChange}
+              placeholder="Select a bank"
+              isLoading={loadingSegments}
+              isClearable
+              isSearchable
+              value={bankOptions.find(
+                (option) => option.value === selectedBank
+              )}
+              className="mt-2"
+            />
           </div>
         )}
         <div className="mt-4">
@@ -114,5 +137,3 @@ export const AssignModal = ({
     </ModalComponent>
   );
 };
-
-const ResponseModal = () => {};
