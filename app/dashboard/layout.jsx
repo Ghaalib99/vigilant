@@ -82,7 +82,7 @@ function DashboardLayout({ children }) {
       <div className="flex flex-col flex-1">
         {/* Header */}
         <header className="bg-white border-b h-16 px-6 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-gray-800">VigilantNPF</h1>
+          <h1 className="text-xl font-semibold text-gray-800">NPFVigilant</h1>
 
           <div className="flex items-center space-x-4">
             {/* Search */}
