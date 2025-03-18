@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useAuth } from "../hooks/useAuth";
+import Image from "next/image";
+import defaultImg from "@/public/NpfLogo.png"
 
 function DashboardLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -82,7 +84,7 @@ function DashboardLayout({ children }) {
       <div className="flex flex-col flex-1">
         {/* Header */}
         <header className="bg-white border-b h-16 px-6 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-gray-800">VigilantNPF</h1>
+          <h1 className="text-xl font-semibold text-gray-800">NPF Vigilant</h1>
 
           <div className="flex items-center space-x-4">
             {/* Search */}
@@ -103,7 +105,9 @@ function DashboardLayout({ children }) {
             {/* User Avatar */}
             <Avatar>
               <AvatarImage src="/placeholder-user.jpg" alt="User avatar" />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarFallback>
+                <Image src={defaultImg} width={50} height={50} alt="User avatar" />
+              </AvatarFallback>
             </Avatar>
           </div>
         </header>
