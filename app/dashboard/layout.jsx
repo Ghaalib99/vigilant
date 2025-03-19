@@ -34,7 +34,7 @@ function DashboardLayout({ children }) {
       label: "Incidents",
       href: "/dashboard/incidents",
     },
-    { icon: BarChart2, label: "Analytics", href: "/dashboard/analytics" },
+    { icon: BarChart2, label: "Reports", href: "/dashboard/reports" },
     { icon: Settings, label: "Settings", href: "dashboard/settings" },
   ];
 
