@@ -1,12 +1,6 @@
 "use client";
 import { acceptIncident, fetchIncidents } from "@/app/services/incidentService";
-import {
-  getIncidents,
-  saveAssignmentId,
-  saveBankId,
-  saveIncidentId,
-  saveIncidentStatus,
-} from "@/app/store/slices/incidentsSlice";
+
 import TableComponent from "@/components/TableComponent";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,6 +11,13 @@ import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading";
 import { useAuth } from "@/app/hooks/useAuth";
 import toast from "react-hot-toast";
+import {
+  getIncidents,
+  setAssignmentId,
+  setBankId,
+  setIncidentId,
+  setIncidentStatus,
+} from "@/app/store/slices/incidentsSlice";
 
 const Incidents = () => {
   const router = useRouter();
@@ -161,10 +162,11 @@ const Incidents = () => {
   };
 
   const handleViewDetails = (row) => {
-    dispatch(saveIncidentId(row.incidentId));
-    dispatch(saveAssignmentId(row.assignmentId));
-    dispatch(saveBankId(row.bankId));
-    dispatch(saveIncidentStatus(row.status));
+    dispatch(setIncidentId(row.incidentId));
+    dispatch(setAssignmentId(row.assignmentId));
+    dispatch(setBankId(row.bankId));
+    dispatch(setIncidentStatus(row.status));
+
     router.push(`/dashboard/incidents/incident-detail/${row.incidentId}`);
   };
 
