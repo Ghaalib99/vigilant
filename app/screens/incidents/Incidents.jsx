@@ -5,6 +5,7 @@ import {
   saveAssignmentId,
   saveBankId,
   saveIncidentId,
+  saveIncidentStatus,
 } from "@/app/store/slices/incidentsSlice";
 import TableComponent from "@/components/TableComponent";
 import Link from "next/link";
@@ -15,6 +16,7 @@ import { SearchCheckIcon, Stamp, View } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading";
 import { useAuth } from "@/app/hooks/useAuth";
+import toast from "react-hot-toast";
 
 const Incidents = () => {
   const router = useRouter();
@@ -34,7 +36,7 @@ const Incidents = () => {
   useEffect(() => {
     if (authToken) {
       dispatch(getIncidents(authToken));
-      // console.log(user);
+      console.log(user);
     }
   }, [dispatch, authToken]);
 
@@ -54,7 +56,9 @@ const Incidents = () => {
           new Date(item.incident?.created_at).toLocaleDateString() || "-",
         transactionType: item.incident?.transaction_type?.name || "-",
         transactionReference: item.incident?.transaction_ref || "-",
-        status: "In Progress",
+        status:
+          item?.acceptance_status?.charAt(0).toUpperCase() +
+          item?.acceptance_status?.slice(1),
         originalData: item.incident,
       }));
   }, [incidents]);
@@ -79,20 +83,20 @@ const Incidents = () => {
         <span className="font-medium text-gray-900">{row.incidentId}</span>
       ),
     },
-    {
-      key: "assignmentId",
-      header: "Assignment ID",
-      render: (row) => (
-        <span className="font-medium text-gray-900">{row.assignmentId}</span>
-      ),
-    },
-    {
-      key: "bankId",
-      header: "Bank ID",
-      render: (row) => (
-        <span className="font-medium text-gray-900">{row.bankId}</span>
-      ),
-    },
+    // {
+    //   key: "assignmentId",
+    //   header: "Assignment ID",
+    //   render: (row) => (
+    //     <span className="font-medium text-gray-900">{row.assignmentId}</span>
+    //   ),
+    // },
+    // {
+    //   key: "bankId",
+    //   header: "Bank ID",
+    //   render: (row) => (
+    //     <span className="font-medium text-gray-900">{row.bankId}</span>
+    //   ),
+    // },
     { key: "reportedBy", header: "Reported By" },
     {
       key: "dateCreated",
@@ -111,7 +115,19 @@ const Incidents = () => {
       key: "status",
       header: "Status",
       render: (row) => (
-        <span className="px-3 py-1 text-sm  text-blue-800">{row.status}</span>
+        <span
+          className={`px-3 py-1 text-sm ${
+            row.status === "Accepted"
+              ? "text-green-800"
+              : row.status === "Pending"
+              ? "text-orange-800"
+              : row.status === "Declined"
+              ? "text-red-800"
+              : "text-blue-800"
+          }`}
+        >
+          {row.status}
+        </span>
       ),
     },
     {
@@ -148,6 +164,7 @@ const Incidents = () => {
     dispatch(saveIncidentId(row.incidentId));
     dispatch(saveAssignmentId(row.assignmentId));
     dispatch(saveBankId(row.bankId));
+    dispatch(saveIncidentStatus(row.status));
     router.push(`/dashboard/incidents/incident-detail/${row.incidentId}`);
   };
 

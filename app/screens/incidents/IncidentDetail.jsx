@@ -37,6 +37,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import toast from "react-hot-toast";
+import { useAuth } from "@/app/hooks/useAuth";
 
 const IncidentDetail = ({ params }) => {
   const router = useRouter();
@@ -46,8 +48,13 @@ const IncidentDetail = ({ params }) => {
     (state) => state.incidents.selectedAssignmentId
   );
   const bankId = useSelector((state) => state.incidents.selectedBankId);
+  const acceptanceStatus = useSelector(
+    (state) => state.incidents.selectedIncidentStatus
+  );
 
   const authToken = useSelector((state) => state.auth.token);
+
+  const { user } = useAuth();
 
   const [incident, setIncident] = useState(null);
   const [banks, setBanks] = useState([]);
@@ -75,7 +82,7 @@ const IncidentDetail = ({ params }) => {
       } else if (selectedOption === "police") {
         entityIdToUse = isNpf;
       }
-
+      console.log(entityIdToUse);
       if (!entityIdToUse) {
         setError("Entity ID not found for the selected option");
         return;
@@ -91,7 +98,8 @@ const IncidentDetail = ({ params }) => {
         segment_id: selectedSegment.id.toString(),
         incident_id: incidentId.toString(),
         // bank_id: selectedBank ? selectedBank.toString() : "",
-        bank_id: bankId ? bankId.toString() : "",
+        bank_id:
+          selectedOption === "bank" ? (bankId ? bankId.toString() : "") : "",
         entity_id: entityIdToUse.toString(),
         comment: comment,
       };
@@ -101,9 +109,11 @@ const IncidentDetail = ({ params }) => {
       const response = await assignIncident(authToken, JSON.stringify(payload));
 
       console.log(response);
+      toast.success("Incident assigned successfully");
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error assigning incident:", error);
+      toast.error("Failed to assign incident");
       setError(error.message || "Failed to assign incident");
     } finally {
       setSubmittingComment(false);
@@ -154,11 +164,11 @@ const IncidentDetail = ({ params }) => {
         setBanks(banksResponse?.data);
 
         if (entitiesResponse?.data) {
-          const vigilantNpfEntity = entitiesResponse.data.find(
-            (entity) => entity.name === "VigilantNPF"
+          const NPFVigilantEntity = entitiesResponse.data.find(
+            (entity) => entity.name === "NPFVigilant"
           );
-          if (vigilantNpfEntity) {
-            setIsNpf(vigilantNpfEntity.id);
+          if (NPFVigilantEntity) {
+            setIsNpf(NPFVigilantEntity.id);
           }
 
           const bankEntity = entitiesResponse.data.find(
@@ -217,10 +227,9 @@ const IncidentDetail = ({ params }) => {
     }
   };
 
-  const getBanks = async () => {
+  const getBanks = useCallback(async () => {
     try {
       setLoading(true);
-      // Check if we already have banks data
       if (banks && banks.length > 0) {
         setLoading(false);
         return;
@@ -240,7 +249,7 @@ const IncidentDetail = ({ params }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [authToken, banks]);
 
   const getEntities = async () => {
     try {
@@ -248,10 +257,10 @@ const IncidentDetail = ({ params }) => {
       const data = await fetchEntities(authToken);
       await setEntities(data?.data);
       if (data?.data) {
-        const vigilantNpfEntity = data.data.find((entity) => {
-          return entity.name && entity.name === "VigilantNPF";
+        const NPFVigilantEntity = data.data.find((entity) => {
+          return entity.name && entity.name === "NPFVigilant";
         });
-        setIsNpf(vigilantNpfEntity.id);
+        setIsNpf(NPFVigilantEntity.id);
 
         const bankEntity = data.data.find((entity) => {
           return entity.name && entity.name === "Bank";
@@ -268,7 +277,11 @@ const IncidentDetail = ({ params }) => {
 
   const getSegments = useCallback(
     async (entityType) => {
+      console.log("Getting segments for:", entityType); // Add this log
       const entityIdToUse = entityType === "bank" ? isBank : isNpf;
+
+      console.log("Entity ID being used:", entityIdToUse); // Add this log
+
       if (!entityIdToUse || !incidentId) {
         console.error("No entity ID or incident ID available for segments");
         return;
@@ -281,6 +294,7 @@ const IncidentDetail = ({ params }) => {
 
       try {
         const data = await fetchSegments(authToken, payload);
+        console.log("Segments response:", data); // Add this log
         setSegments(data?.data || []);
 
         if (data?.data && data.data.length > 0) {
@@ -319,6 +333,11 @@ const IncidentDetail = ({ params }) => {
 
   const handleAssignModal = async () => {
     setIsModalOpen(true);
+  };
+
+  const assignFromResponse = () => {
+    setIsResponseModalOpen(false);
+    handleAssignModal();
   };
 
   return (
@@ -389,15 +408,6 @@ const IncidentDetail = ({ params }) => {
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-4 mt-8">
           <Button
-            onClick={handleAssignModal}
-            disabled={!hasResponded}
-            className="py-2 h-11"
-          >
-            <User className="h-5 w-5 mr-2" />
-            Assign
-          </Button>
-
-          <Button
             onClick={() => setIsResponseModalOpen(true)}
             disabled={hasResponded}
             className="py-2 h-11 bg-green-600 hover:bg-green-700 text-white"
@@ -405,6 +415,16 @@ const IncidentDetail = ({ params }) => {
             <Mouse className="h-5 w-5 mr-2" />
             Respond
           </Button>
+          {acceptanceStatus !== "Pending" && (
+            <Button
+              onClick={handleAssignModal}
+              // disabled={!hasResponded}
+              className="py-2 h-11"
+            >
+              <User className="h-5 w-5 mr-2" />
+              Assign
+            </Button>
+          )}
         </div>
       </div>
       <AssignModal
@@ -420,29 +440,61 @@ const IncidentDetail = ({ params }) => {
       />
       {/* Response Modal */}
       <Dialog open={isResponseModalOpen} onOpenChange={setIsResponseModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Respond to Incident</DialogTitle>
-            <DialogDescription>
-              Would you like to accept or decline this incident?
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center space-x-4 mt-4">
-            <Button
-              onClick={() => handleResponse("accept")}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              Accept
-            </Button>
-            <Button
-              onClick={() => handleResponse("decline")}
-              variant="outline"
-              className="border-red-600 text-red-600 hover:bg-red-50"
-            >
-              Decline
-            </Button>
-          </div>
-        </DialogContent>
+        {acceptanceStatus === "Pending" ? (
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Respond to Incident</DialogTitle>
+              <DialogDescription>
+                {user?.role?.name !== "vgn-customer-service"
+                  ? "Would you like to accept or decline this incident?"
+                  : "Proceed to accept incident."}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-center space-x-4 mt-2">
+              <Button
+                onClick={() => handleResponse("accept")}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                Accept
+              </Button>
+              {user?.role?.name !== "vgn-customer-service" && (
+                <Button
+                  onClick={() => handleResponse("decline")}
+                  variant="outline"
+                  className="border-red-600 text-red-600 hover:bg-red-50"
+                >
+                  Decline
+                </Button>
+              )}
+            </div>
+          </DialogContent>
+        ) : (
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Incident Already Responded To</DialogTitle>
+              <div className="pt-8">
+                You can no longer respond to this incident because it has
+                previously been{" "}
+                {acceptanceStatus === "Accepted" ? "accepted" : "declined"}.
+                {acceptanceStatus === "Accepted" ? (
+                  <div className="mt-2 w-full">
+                    <p>You can proceed to assign</p>
+                    <Button
+                      onClick={assignFromResponse}
+                      className="py-2 h-11 mt-3 w-full"
+                    >
+                      <User className="h-5 w-5 mr-2" />
+                      Assign
+                    </Button>
+                  </div>
+                ) : (
+                  ""
+                )}
+                .
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        )}
       </Dialog>
     </div>
   );

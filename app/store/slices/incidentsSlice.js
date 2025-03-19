@@ -50,6 +50,18 @@ export const saveBankId = createAsyncThunk(
   }
 );
 
+// Async thunk to save incident status
+export const saveIncidentStatus = createAsyncThunk(
+  "incidents/saveIncidentStatus",
+  async (incidentStatus, { rejectWithValue }) => {
+    try {
+      return incidentStatus;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const incidentsSlice = createSlice({
   name: "incidents",
   initialState: {
@@ -59,6 +71,7 @@ const incidentsSlice = createSlice({
     selectedIncidentId: null,
     selectedAssignmentId: null,
     selectedBankId: null,
+    selectedIncidentStatus: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -87,6 +100,10 @@ const incidentsSlice = createSlice({
       // Handle saveBankId fulfilled state
       .addCase(saveBankId.fulfilled, (state, action) => {
         state.selectedBankId = action.payload;
+      })
+      // Handle saveIncidentStatus fulfilled state
+      .addCase(saveIncidentStatus.fulfilled, (state, action) => {
+        state.selectedIncidentStatus = action.payload;
       });
   },
 });
