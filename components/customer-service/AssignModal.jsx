@@ -145,6 +145,67 @@ export const AssignModal = ({
             </RadioGroup>
           </>
         )}
+
+        {user?.role?.name === "bank-fraud-desk" && (
+          <>
+            <RadioGroup
+              value={selectedOption}
+              onValueChange={handleOptionChange}
+              className="space-y-4 text-lg mb-6"
+            >
+              <Label className="flex items-center space-x-2">
+                <RadioGroupItem value="bank" />
+                <span>Internal Control</span>
+              </Label>
+            </RadioGroup>
+          </>
+        )}
+
+        {user?.role?.name === "bank-internal-control" && (
+          <>
+            <RadioGroup
+              value={selectedOption}
+              onValueChange={handleOptionChange}
+              className="space-y-4 text-lg mb-6"
+            >
+              <Label className="flex items-center space-x-2">
+                <RadioGroupItem value="bank" />
+                <span>Internal Audit</span>
+              </Label>
+            </RadioGroup>
+          </>
+        )}
+
+        {user?.role?.name === "bank-internal-audit" && (
+          <>
+            <RadioGroup
+              value={selectedOption}
+              onValueChange={handleOptionChange}
+              className="space-y-4 text-lg mb-6"
+            >
+              <Label className="flex items-center space-x-2">
+                <RadioGroupItem value="bank" />
+                <span>Risk</span>
+              </Label>
+            </RadioGroup>
+          </>
+        )}
+
+        {user?.role?.name === "bank-risk" && (
+          <>
+            <RadioGroup
+              value={selectedOption}
+              onValueChange={handleOptionChange}
+              className="space-y-4 text-lg mb-6"
+            >
+              <Label className="flex items-center space-x-2">
+                <RadioGroupItem value="bank" />
+                <span>Finance</span>
+              </Label>
+            </RadioGroup>
+          </>
+        )}
+
         <div className="mt-4">
           <Label>Comment</Label>
           <Textarea

@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
 import { useAuth } from "@/app/hooks/useAuth";
+import { updateIncidentStatus } from "@/app/store/slices/incidentsSlice";
 
 const IncidentDetail = ({ params }) => {
   const router = useRouter();
@@ -127,6 +128,7 @@ const IncidentDetail = ({ params }) => {
       if (action === "accept") {
         await acceptIncident(authToken, assignmentId);
         setHasResponded(true);
+        dispatch(updateIncidentStatus({ incidentId, status: "Accepted" }));
       } else if (action === "decline") {
         await declineIncident(authToken, assignmentId);
         router.back();
