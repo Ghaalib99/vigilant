@@ -23,12 +23,13 @@ import {
   User,
   AlertCircle,
   Mouse,
+  MessageCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { IncidentDetailsTab } from "@/components/customer-service/IncidentDetailsTab";
-import { CommentsTab } from "@/components/customer-service/CommentsTab";
-import { ActivityLogTab } from "@/components/customer-service/ActivityLogTab";
-import { AssignModal } from "@/components/customer-service/AssignModal";
+import { IncidentDetailsTab } from "@/components/incidents/IncidentDetailsTab";
+import { CommentsTab } from "@/components/incidents/CommentsTab";
+import { ActivityLogTab } from "@/components/incidents/ActivityLogTab";
+import { AssignModal } from "@/components/incidents/AssignModal";
 import Loading from "@/components/Loading";
 import {
   Dialog,
@@ -56,6 +57,9 @@ const IncidentDetail = ({ params }) => {
   const authToken = useSelector((state) => state.auth.token);
 
   const { user } = useAuth();
+  const nonAssigningPersonnel =
+    user?.role?.name === "npf-investigator" ||
+    user?.role?.name === "bank-finance";
 
   const [incident, setIncident] = useState(null);
   const [banks, setBanks] = useState([]);
@@ -144,40 +148,40 @@ const IncidentDetail = ({ params }) => {
       router.push("/");
       return;
     }
-
     if (!incidentId) {
       setError("No incident ID provided");
       setLoading(false);
       return;
     }
-
     const loadInitialData = async () => {
       setLoading(true);
       try {
-        const [incidentResponse, entitiesResponse, banksResponse] =
-          await Promise.all([
-            fetchIncident(authToken, incidentId),
+        const [incidentResponse] = await Promise.all([
+          fetchIncident(authToken, incidentId),
+        ]);
+        setIncident(incidentResponse?.data);
+
+        if (!nonAssigningPersonnel) {
+          const [entitiesResponse, banksResponse] = await Promise.all([
             fetchEntities(authToken),
             fetchBanks(authToken),
           ]);
+          setEntities(entitiesResponse?.data);
+          setBanks(banksResponse?.data);
 
-        setIncident(incidentResponse?.data);
-        setEntities(entitiesResponse?.data);
-        setBanks(banksResponse?.data);
-
-        if (entitiesResponse?.data) {
-          const NPFVigilantEntity = entitiesResponse.data.find(
-            (entity) => entity.name === "NPFVigilant"
-          );
-          if (NPFVigilantEntity) {
-            setIsNpf(NPFVigilantEntity.id);
-          }
-
-          const bankEntity = entitiesResponse.data.find(
-            (entity) => entity.name === "Bank"
-          );
-          if (bankEntity) {
-            setIsBank(bankEntity.id);
+          if (entitiesResponse?.data) {
+            const NPFVigilantEntity = entitiesResponse.data.find(
+              (entity) => entity.name === "NPFVigilant"
+            );
+            if (NPFVigilantEntity) {
+              setIsNpf(NPFVigilantEntity.id);
+            }
+            const bankEntity = entitiesResponse.data.find(
+              (entity) => entity.name === "Bank"
+            );
+            if (bankEntity) {
+              setIsBank(bankEntity.id);
+            }
           }
         }
       } catch (error) {
@@ -187,9 +191,8 @@ const IncidentDetail = ({ params }) => {
         setLoading(false);
       }
     };
-
     loadInitialData();
-  }, [authToken, router, incidentId]);
+  }, [authToken, router, incidentId, nonAssigningPersonnel]);
 
   const handleBack = () => {
     router.back();
@@ -409,22 +412,34 @@ const IncidentDetail = ({ params }) => {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-4 mt-8">
-          <Button
-            onClick={() => setIsResponseModalOpen(true)}
-            disabled={hasResponded}
-            className="py-2 h-11 bg-green-600 hover:bg-green-700 text-white"
-          >
-            <Mouse className="h-5 w-5 mr-2" />
-            Respond
-          </Button>
-          {acceptanceStatus !== "Pending" && (
+          {!nonAssigningPersonnel ? (
+            <>
+              <Button
+                onClick={() => setIsResponseModalOpen(true)}
+                disabled={hasResponded}
+                className="py-2 h-11 bg-green-600 hover:bg-green-700 text-white"
+              >
+                <Mouse className="h-5 w-5 mr-2" />
+                Respond
+              </Button>
+              {acceptanceStatus !== "Pending" && (
+                <Button
+                  onClick={handleAssignModal}
+                  // disabled={!hasResponded}
+                  className="py-2 h-11"
+                >
+                  <User className="h-5 w-5 mr-2" />
+                  Assign
+                </Button>
+              )}
+            </>
+          ) : (
             <Button
-              onClick={handleAssignModal}
-              // disabled={!hasResponded}
-              className="py-2 h-11"
+              disabled={hasResponded}
+              className="py-2 h-11 bg-primary hover:bg-green-700 text-white w-full"
             >
-              <User className="h-5 w-5 mr-2" />
-              Assign
+              <MessageCircle size={20} className=" mr-2" />
+              Add Comment
             </Button>
           )}
         </div>

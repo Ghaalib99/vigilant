@@ -107,8 +107,8 @@ export const addComment = async (authToken, payload) => {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: `Bearer ${authToken}`,
-        body: payload,
       },
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -212,6 +212,29 @@ export const fetchSegments = async (authToken, payload) => {
     const data = await response.json();
     return data;
   } catch (error) {
+    throw error;
+  }
+};
+
+export const fetchIncidentComments = async (authToken, incidentId) => {
+  try {
+    const response = await fetch(`${baseUrl}/admin/comment/all/${incidentId}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching banks:", error.message);
     throw error;
   }
 };
