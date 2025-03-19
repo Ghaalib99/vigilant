@@ -97,59 +97,68 @@ function DashboardLayout({ children }) {
 
           <div className="flex items-center space-x-4">
             {/* Search */}
-            <div className="relative">
+            {/* <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 type="text"
                 placeholder="Search..."
                 className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            </div>
+            </div> */}
 
             {/* Role Badge */}
             <div className="relative">
               <Badge
-                variant="outline"
-                className="cursor-pointer hover:bg-gray-100 flex items-center gap-1"
+                // variant="outline"
+                className="cursor-pointer h-8 hover:bg-gray-100 hover:text-primary flex items-center gap-1 rounded-md"
                 onClick={toggleUserInfo}
               >
-                <UserCheck className="h-3 w-3" />
+                <UserCheck size={20} className="h-3 w-3" />
                 <span>{user?.role?.name?.replace(/-/g, " ")}</span>
               </Badge>
 
               {/* User Info Popover */}
               {isUserInfoOpen && (
-                <div className="absolute right-0 mt-2 z-50 min-w-[250px] bg-white border rounded-md shadow-lg p-4">
+                <div className="absolute right-0 mt-2 z-50 min-w-[250px] w-[300px] bg-primary text-white border rounded-md shadow-lg p-4">
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-gray-900">
-                      User Details
-                    </h4>
                     <div className="space-y-1 text-sm">
-                      <p>
-                        <span className="font-medium">Name:</span>{" "}
+                      <p className="font-semibold">
+                        <span className="font-medium inline-block w-[50px] mr-4">
+                          Name:
+                        </span>{" "}
                         {user?.first_name} {user?.last_name}
                       </p>
-                      <p>
-                        <span className="font-medium">Email:</span>{" "}
+                      <p className="font-semibold">
+                        <span className="font-medium inline-block w-[50px] mr-4">
+                          Email:
+                        </span>{" "}
                         {user?.email}
                       </p>
-                      <p>
-                        <span className="font-medium">Phone:</span>{" "}
+                      <p className="font-semibold">
+                        <span className="font-medium inline-block w-[50px] mr-4">
+                          Phone:
+                        </span>{" "}
                         {user?.phone}
                       </p>
-                      <p>
-                        <span className="font-medium">Role:</span>{" "}
+                      <p className="font-semibold">
+                        <span className="font-medium inline-block w-[50px] mr-4">
+                          Role:
+                        </span>{" "}
                         {user?.role?.name?.replace(/-/g, " ")}
                       </p>
                       {user?.entity && (
-                        <p>
-                          <span className="font-medium">Entity:</span>{" "}
+                        <p className="font-semibold">
+                          <span className="font-medium inline-block w-[50px] mr-4">
+                            Entity:
+                          </span>{" "}
                           {user?.entity?.name}
                         </p>
                       )}
                       {user?.bank && (
-                        <p>
-                          <span className="font-medium">Bank:</span>{" "}
+                        <p className="font-semibold">
+                          <span className="font-medium inline-block w-[50px] mr-4">
+                            Bank:
+                          </span>{" "}
                           {user?.bank?.bank_name}
                         </p>
                       )}
