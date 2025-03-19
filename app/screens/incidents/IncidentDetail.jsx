@@ -38,6 +38,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
+import { useAuth } from "@/app/hooks/useAuth";
 
 const IncidentDetail = ({ params }) => {
   const router = useRouter();
@@ -52,6 +53,8 @@ const IncidentDetail = ({ params }) => {
   );
 
   const authToken = useSelector((state) => state.auth.token);
+
+  const { user } = useAuth();
 
   const [incident, setIncident] = useState(null);
   const [banks, setBanks] = useState([]);
@@ -79,7 +82,7 @@ const IncidentDetail = ({ params }) => {
       } else if (selectedOption === "police") {
         entityIdToUse = isNpf;
       }
-
+      console.log(entityIdToUse);
       if (!entityIdToUse) {
         setError("Entity ID not found for the selected option");
         return;
@@ -106,7 +109,7 @@ const IncidentDetail = ({ params }) => {
       const response = await assignIncident(authToken, JSON.stringify(payload));
 
       console.log(response);
-      toast.success("incident assigned successfully");
+      toast.success("Incident assigned successfully");
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error assigning incident:", error);
@@ -161,11 +164,11 @@ const IncidentDetail = ({ params }) => {
         setBanks(banksResponse?.data);
 
         if (entitiesResponse?.data) {
-          const vigilantNpfEntity = entitiesResponse.data.find(
-            (entity) => entity.name === "VigilantNPF"
+          const NPFVigilantEntity = entitiesResponse.data.find(
+            (entity) => entity.name === "NPFVigilant"
           );
-          if (vigilantNpfEntity) {
-            setIsNpf(vigilantNpfEntity.id);
+          if (NPFVigilantEntity) {
+            setIsNpf(NPFVigilantEntity.id);
           }
 
           const bankEntity = entitiesResponse.data.find(
@@ -254,10 +257,10 @@ const IncidentDetail = ({ params }) => {
       const data = await fetchEntities(authToken);
       await setEntities(data?.data);
       if (data?.data) {
-        const vigilantNpfEntity = data.data.find((entity) => {
-          return entity.name && entity.name === "VigilantNPF";
+        const NPFVigilantEntity = data.data.find((entity) => {
+          return entity.name && entity.name === "NPFVigilant";
         });
-        setIsNpf(vigilantNpfEntity.id);
+        setIsNpf(NPFVigilantEntity.id);
 
         const bankEntity = data.data.find((entity) => {
           return entity.name && entity.name === "Bank";
@@ -274,7 +277,11 @@ const IncidentDetail = ({ params }) => {
 
   const getSegments = useCallback(
     async (entityType) => {
+      console.log("Getting segments for:", entityType); // Add this log
       const entityIdToUse = entityType === "bank" ? isBank : isNpf;
+
+      console.log("Entity ID being used:", entityIdToUse); // Add this log
+
       if (!entityIdToUse || !incidentId) {
         console.error("No entity ID or incident ID available for segments");
         return;
@@ -287,6 +294,7 @@ const IncidentDetail = ({ params }) => {
 
       try {
         const data = await fetchSegments(authToken, payload);
+        console.log("Segments response:", data); // Add this log
         setSegments(data?.data || []);
 
         if (data?.data && data.data.length > 0) {
@@ -437,23 +445,27 @@ const IncidentDetail = ({ params }) => {
             <DialogHeader>
               <DialogTitle>Respond to Incident</DialogTitle>
               <DialogDescription>
-                Would you like to accept or decline this incident?
+                {user?.role?.name !== "vgn-customer-service"
+                  ? "Would you like to accept or decline this incident?"
+                  : "Proceed to accept incident."}
               </DialogDescription>
             </DialogHeader>
-            <div className="flex justify-center space-x-4 mt-4">
+            <div className="flex justify-center space-x-4 mt-2">
               <Button
                 onClick={() => handleResponse("accept")}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 Accept
               </Button>
-              <Button
-                onClick={() => handleResponse("decline")}
-                variant="outline"
-                className="border-red-600 text-red-600 hover:bg-red-50"
-              >
-                Decline
-              </Button>
+              {user?.role?.name !== "vgn-customer-service" && (
+                <Button
+                  onClick={() => handleResponse("decline")}
+                  variant="outline"
+                  className="border-red-600 text-red-600 hover:bg-red-50"
+                >
+                  Decline
+                </Button>
+              )}
             </div>
           </DialogContent>
         ) : (

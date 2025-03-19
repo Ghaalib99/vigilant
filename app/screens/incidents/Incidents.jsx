@@ -36,7 +36,7 @@ const Incidents = () => {
   useEffect(() => {
     if (authToken) {
       dispatch(getIncidents(authToken));
-      // console.log(user);
+      console.log(user);
     }
   }, [dispatch, authToken]);
 

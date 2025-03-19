@@ -4,6 +4,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import ModalComponent from "@/components/ModalComponent";
 import Select from "react-select";
+import { useAuth } from "@/app/hooks/useAuth";
 
 export const AssignModal = ({
   isModalOpen,
@@ -15,6 +16,7 @@ export const AssignModal = ({
   selectedSegment,
   setSelectedSegment,
 }) => {
+  const { user } = useAuth();
   const [selectedOption, setSelectedOption] = useState("bank");
   const [selectedBank, setSelectedBank] = useState("");
   const [comment, setComment] = useState("");
@@ -92,37 +94,56 @@ export const AssignModal = ({
     >
       <div>
         <h4 className="font-bold text-lg mb-4">Assign this incident to:</h4>
-        <RadioGroup
-          value={selectedOption}
-          onValueChange={handleOptionChange}
-          className="space-y-4 text-lg mb-6"
-        >
-          <Label className="flex items-center space-x-2">
-            <RadioGroupItem value="police" />
-            <span>Nigerian Police Force</span>
-          </Label>
-          <Label className="flex items-center space-x-2">
-            <RadioGroupItem value="bank" />
-            <span>Bank</span>
-          </Label>
-        </RadioGroup>
-        {selectedOption === "bank" && (
-          <div className="mt-4 mb-6">
-            <Label htmlFor="bank-select">Select Bank</Label>
-            <Select
-              id="bank-select"
-              options={bankOptions}
-              onChange={handleBankChange}
-              placeholder="Select a bank"
-              isLoading={loadingSegments}
-              isClearable
-              isSearchable
-              value={bankOptions.find(
-                (option) => option.value === selectedBank
-              )}
-              className="mt-2"
-            />
-          </div>
+        {user?.role?.name === "vgn-customer-service" && (
+          <>
+            <RadioGroup
+              value={selectedOption}
+              onValueChange={handleOptionChange}
+              className="space-y-4 text-lg mb-6"
+            >
+              <Label className="flex items-center space-x-2">
+                <RadioGroupItem value="police" />
+                <span>Nigerian Police Force</span>
+              </Label>
+              <Label className="flex items-center space-x-2">
+                <RadioGroupItem value="bank" />
+                <span>Bank</span>
+              </Label>
+            </RadioGroup>
+            {selectedOption === "bank" && (
+              <div className="mt-4 mb-6">
+                <Label htmlFor="bank-select">Select Bank</Label>
+                <Select
+                  id="bank-select"
+                  options={bankOptions}
+                  onChange={handleBankChange}
+                  placeholder="Select a bank"
+                  isLoading={loadingSegments}
+                  isClearable
+                  isSearchable
+                  value={bankOptions.find(
+                    (option) => option.value === selectedBank
+                  )}
+                  className="mt-2"
+                />
+              </div>
+            )}
+          </>
+        )}
+
+        {user?.role?.name === "npf-investigator" && (
+          <>
+            <RadioGroup
+              value={selectedOption}
+              onValueChange={handleOptionChange}
+              className="space-y-4 text-lg mb-6"
+            >
+              <Label className="flex items-center space-x-2">
+                <RadioGroupItem value="police" />
+                <span>NPF Investigator</span>
+              </Label>
+            </RadioGroup>
+          </>
         )}
         <div className="mt-4">
           <Label>Comment</Label>

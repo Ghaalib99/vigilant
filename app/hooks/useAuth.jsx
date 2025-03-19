@@ -13,7 +13,7 @@ import {
 export const useAuth = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { loading, error, otpRequired, email } = useSelector(
+  const { loading, error, otpRequired, email, user } = useSelector(
     (state) => state.auth
   );
 
@@ -129,5 +129,5 @@ export const useAuth = () => {
     router.push("/");
   };
 
-  return { login, verifyOtp, logout, loading, error, otpRequired };
+  return { login, verifyOtp, logout, loading, error, otpRequired, user };
 };
