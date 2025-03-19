@@ -9,6 +9,9 @@ import {
   Search,
   LogOut,
   Menu,
+  PackagePlus,
+  UserCheck,
+  FileStack,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -17,15 +20,17 @@ import Link from "next/link";
 import { useAuth } from "../hooks/useAuth";
 import Image from "next/image";
 import defaultImg from "@/public/NpfLogo.png";
+import { Badge } from "@/components/ui/badge";
 
 function DashboardLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const { logout } = useAuth();
+  const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
+  const { logout, user } = useAuth();
 
   const menuItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
     {
-      icon: Users,
+      icon: FileStack,
       label: "Incidents",
       href: "/dashboard/incidents",
     },
@@ -35,6 +40,10 @@ function DashboardLayout({ children }) {
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const toggleUserInfo = () => {
+    setIsUserInfoOpen(!isUserInfoOpen);
   };
 
   return (
@@ -88,13 +97,75 @@ function DashboardLayout({ children }) {
 
           <div className="flex items-center space-x-4">
             {/* Search */}
-            <div className="relative">
+            {/* <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 type="text"
                 placeholder="Search..."
                 className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+            </div> */}
+
+            {/* Role Badge */}
+            <div className="relative">
+              <Badge
+                // variant="outline"
+                className="cursor-pointer h-8 hover:bg-gray-100 hover:text-primary flex items-center gap-1 rounded-md"
+                onClick={toggleUserInfo}
+              >
+                <UserCheck size={20} className="h-3 w-3" />
+                <span>{user?.role?.name?.replace(/-/g, " ")}</span>
+              </Badge>
+
+              {/* User Info Popover */}
+              {isUserInfoOpen && (
+                <div className="absolute right-0 mt-2 z-50 min-w-[250px] w-[300px] bg-primary text-white border rounded-md shadow-lg p-4">
+                  <div className="space-y-2">
+                    <div className="space-y-1 text-sm">
+                      <p className="font-semibold">
+                        <span className="font-medium inline-block w-[50px] mr-4">
+                          Name:
+                        </span>{" "}
+                        {user?.first_name} {user?.last_name}
+                      </p>
+                      <p className="font-semibold">
+                        <span className="font-medium inline-block w-[50px] mr-4">
+                          Email:
+                        </span>{" "}
+                        {user?.email}
+                      </p>
+                      <p className="font-semibold">
+                        <span className="font-medium inline-block w-[50px] mr-4">
+                          Phone:
+                        </span>{" "}
+                        {user?.phone}
+                      </p>
+                      <p className="font-semibold">
+                        <span className="font-medium inline-block w-[50px] mr-4">
+                          Role:
+                        </span>{" "}
+                        {user?.role?.name?.replace(/-/g, " ")}
+                      </p>
+                      {user?.entity && (
+                        <p className="font-semibold">
+                          <span className="font-medium inline-block w-[50px] mr-4">
+                            Entity:
+                          </span>{" "}
+                          {user?.entity?.name}
+                        </p>
+                      )}
+                      {user?.bank && (
+                        <p className="font-semibold">
+                          <span className="font-medium inline-block w-[50px] mr-4">
+                            Bank:
+                          </span>{" "}
+                          {user?.bank?.bank_name}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Notifications */}
