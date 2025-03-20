@@ -58,7 +58,7 @@ const IncidentDetail = ({ params }) => {
 
   const { user } = useAuth();
   const nonAssigningPersonnel =
-    user?.role?.name === "npf-investigator" ||
+    user?.role?.name === "npf-prosecutor" ||
     user?.role?.name === "bank-finance";
 
   const [incident, setIncident] = useState(null);
@@ -400,7 +400,7 @@ const IncidentDetail = ({ params }) => {
             <IncidentDetailsTab incident={incident} />
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 mt-8">
-              {!nonAssigningPersonnel ? (
+              {!nonAssigningPersonnel && (
                 <>
                   <Button
                     onClick={() => setIsResponseModalOpen(true)}
@@ -417,16 +417,6 @@ const IncidentDetail = ({ params }) => {
                     </Button>
                   )}
                 </>
-              ) : (
-                // <Button
-                //   onClick={() => setTabValue("comments")} // Switch to Comments tab
-                //   disabled={hasResponded}
-                //   className="py-2 h-11 bg-primary hover:bg-primary/50 text-white w-1/2"
-                // >
-                //   <MessageCircle size={20} className="mr-2" />
-                //   Add Comment
-                // </Button>
-                <></>
               )}
             </div>
           </TabsContent>

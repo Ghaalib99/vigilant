@@ -120,7 +120,12 @@ function DashboardLayout({ children }) {
                 onClick={toggleUserInfo}
               >
                 <UserCheck size={20} className="h-3 w-3" />
-                <span>{user?.role?.name?.replace(/-/g, " ")}</span>
+                <span>
+                  {user?.role?.name
+                    ?.toLowerCase()
+                    .replace(/-/g, " ")
+                    .replace(/\b\w/g, (char) => char.toUpperCase())}
+                </span>
               </Badge>
 
               {/* User Info Popover */}
@@ -150,7 +155,10 @@ function DashboardLayout({ children }) {
                         <span className="font-medium inline-block w-[50px] mr-4">
                           Role:
                         </span>{" "}
-                        {user?.role?.name?.replace(/-/g, " ")}
+                        {user?.role?.name
+                          ?.toLowerCase()
+                          .replace(/-/g, " ")
+                          .replace(/\b\w/g, (char) => char.toUpperCase())}
                       </p>
                       {user?.entity && (
                         <p className="font-semibold py-2 border-b">
