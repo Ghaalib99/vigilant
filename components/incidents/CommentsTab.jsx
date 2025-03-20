@@ -100,7 +100,7 @@ export const CommentsTab = () => {
       </div>
 
       <h3 className="text-lg font-medium text-gray-900 mt-8 mb-4">
-        Comments History
+        Comment History
       </h3>
       {error && (
         <Alert variant="destructive" className="mb-4">

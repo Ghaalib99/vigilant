@@ -37,7 +37,7 @@ function DashboardLayout({ children }) {
       href: "/dashboard/incidents",
     },
     { icon: BarChart2, label: "Reports", href: "/dashboard/reports" },
-    { icon: Settings, label: "Settings", href: "dashboard/settings" },
+    // { icon: Settings, label: "Settings", href: "dashboard/settings" },
   ];
 
   const toggleSidebar = () => {

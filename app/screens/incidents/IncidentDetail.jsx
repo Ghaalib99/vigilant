@@ -77,6 +77,7 @@ const IncidentDetail = ({ params }) => {
   const [isBank, setIsBank] = useState("");
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
   const [hasResponded, setHasResponded] = useState(false);
+  const [tabValue, setTabValue] = useState("details");
 
   const handleAssign = async (selectedOption, comment, selectedBank) => {
     try {
@@ -397,6 +398,37 @@ const IncidentDetail = ({ params }) => {
           {/* Details Tab */}
           <TabsContent value="details">
             <IncidentDetailsTab incident={incident} />
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-4 mt-8">
+              {!nonAssigningPersonnel ? (
+                <>
+                  <Button
+                    onClick={() => setIsResponseModalOpen(true)}
+                    disabled={hasResponded}
+                    className="py-2 h-11 bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <Mouse className="h-5 w-5 mr-2" />
+                    Respond
+                  </Button>
+                  {acceptanceStatus !== "Pending" && (
+                    <Button onClick={handleAssignModal} className="py-2 h-11">
+                      <User className="h-5 w-5 mr-2" />
+                      Assign
+                    </Button>
+                  )}
+                </>
+              ) : (
+                // <Button
+                //   onClick={() => setTabValue("comments")} // Switch to Comments tab
+                //   disabled={hasResponded}
+                //   className="py-2 h-11 bg-primary hover:bg-primary/50 text-white w-1/2"
+                // >
+                //   <MessageCircle size={20} className="mr-2" />
+                //   Add Comment
+                // </Button>
+                <></>
+              )}
+            </div>
           </TabsContent>
 
           {/* Comments Tab */}
@@ -409,40 +441,6 @@ const IncidentDetail = ({ params }) => {
             <ActivityLogTab logs={[]} />
           </TabsContent>
         </Tabs>
-
-        {/* Action Buttons */}
-        <div className="flex flex-wrap gap-4 mt-8">
-          {!nonAssigningPersonnel ? (
-            <>
-              <Button
-                onClick={() => setIsResponseModalOpen(true)}
-                disabled={hasResponded}
-                className="py-2 h-11 bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Mouse className="h-5 w-5 mr-2" />
-                Respond
-              </Button>
-              {acceptanceStatus !== "Pending" && (
-                <Button
-                  onClick={handleAssignModal}
-                  // disabled={!hasResponded}
-                  className="py-2 h-11"
-                >
-                  <User className="h-5 w-5 mr-2" />
-                  Assign
-                </Button>
-              )}
-            </>
-          ) : (
-            <Button
-              disabled={hasResponded}
-              className="py-2 h-11 bg-primary hover:bg-green-700 text-white w-full"
-            >
-              <MessageCircle size={20} className=" mr-2" />
-              Add Comment
-            </Button>
-          )}
-        </div>
       </div>
       <AssignModal
         isModalOpen={isModalOpen}
