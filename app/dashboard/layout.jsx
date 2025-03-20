@@ -73,7 +73,7 @@ function DashboardLayout({ children }) {
             href={href}
             className={`w-full flex items-center space-x-4 px-4 py-2 rounded-md ${
               pathname === href
-                ? "bg-primary text-white"
+                ? "bg-gray-300 text-primary"
                 : "hover:bg-gray-100 hover:text-primary"
             }`}
           >
