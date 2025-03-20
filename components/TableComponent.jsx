@@ -28,7 +28,7 @@ const TableComponent = ({ data, columns, itemsPerPage = 10, onRowClick }) => {
               className="hover:bg-gray-50 cursor-pointer"
             >
               {columns.map((column) => (
-                <td key={column.key} className="py-4 px-4 border-b">
+                <td key={column.key} className="py-3 px-4 border-b">
                   {column.render ? column.render(row) : row[column.key]}
                 </td>
               ))}
