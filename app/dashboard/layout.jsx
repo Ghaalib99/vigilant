@@ -21,8 +21,10 @@ import { useAuth } from "../hooks/useAuth";
 import Image from "next/image";
 import defaultImg from "@/public/NpfLogo.png";
 import { Badge } from "@/components/ui/badge";
+import { usePathname } from "next/navigation";
 
 function DashboardLayout({ children }) {
+  const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
   const { logout, user } = useAuth();
@@ -34,7 +36,7 @@ function DashboardLayout({ children }) {
       label: "Incidents",
       href: "/dashboard/incidents",
     },
-    { icon: BarChart2, label: "Analytics", href: "/dashboard/analytics" },
+    { icon: BarChart2, label: "Reports", href: "/dashboard/reports" },
     { icon: Settings, label: "Settings", href: "dashboard/settings" },
   ];
 
@@ -69,7 +71,11 @@ function DashboardLayout({ children }) {
           <Link
             key={index}
             href={href}
-            className="w-full flex items-center space-x-4 px-4 py-2 hover:bg-gray-100 hover:text-primary rounded-md"
+            className={`w-full flex items-center space-x-4 px-4 py-2 rounded-md ${
+              pathname === href
+                ? "bg-primary text-white"
+                : "hover:bg-gray-100 hover:text-primary"
+            }`}
           >
             <Icon className="h-5 w-5" />
             {isSidebarOpen && <span className="text-sm">{label}</span>}
@@ -119,35 +125,35 @@ function DashboardLayout({ children }) {
 
               {/* User Info Popover */}
               {isUserInfoOpen && (
-                <div className="absolute right-0 mt-2 z-50 min-w-[250px] w-[300px] bg-primary text-white border rounded-md shadow-lg p-4">
+                <div className="absolute right-0 mt-2 z-50 min-w-[250px] w-[300px] bg-white text-primary border rounded-md shadow-lg p-4">
                   <div className="space-y-2">
                     <div className="space-y-1 text-sm">
-                      <p className="font-semibold">
+                      <p className="font-semibold py-2 border-b">
                         <span className="font-medium inline-block w-[50px] mr-4">
                           Name:
                         </span>{" "}
                         {user?.first_name} {user?.last_name}
                       </p>
-                      <p className="font-semibold">
+                      <p className="font-semibold py-2 border-b">
                         <span className="font-medium inline-block w-[50px] mr-4">
                           Email:
                         </span>{" "}
                         {user?.email}
                       </p>
-                      <p className="font-semibold">
+                      <p className="font-semibold py-2 border-b">
                         <span className="font-medium inline-block w-[50px] mr-4">
                           Phone:
                         </span>{" "}
                         {user?.phone}
                       </p>
-                      <p className="font-semibold">
+                      <p className="font-semibold py-2 border-b">
                         <span className="font-medium inline-block w-[50px] mr-4">
                           Role:
                         </span>{" "}
                         {user?.role?.name?.replace(/-/g, " ")}
                       </p>
                       {user?.entity && (
-                        <p className="font-semibold">
+                        <p className="font-semibold py-2 border-b">
                           <span className="font-medium inline-block w-[50px] mr-4">
                             Entity:
                           </span>{" "}
@@ -155,7 +161,7 @@ function DashboardLayout({ children }) {
                         </p>
                       )}
                       {user?.bank && (
-                        <p className="font-semibold">
+                        <p className="font-semibold py-2 border-b">
                           <span className="font-medium inline-block w-[50px] mr-4">
                             Bank:
                           </span>{" "}
