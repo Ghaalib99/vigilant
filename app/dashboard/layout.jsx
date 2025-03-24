@@ -12,6 +12,7 @@ import {
   PackagePlus,
   UserCheck,
   FileStack,
+  UserPlus,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ function DashboardLayout({ children }) {
       href: "/dashboard/incidents",
     },
     { icon: BarChart2, label: "Reports", href: "/dashboard/reports" },
-    // { icon: Settings, label: "Settings", href: "dashboard/settings" },
+    { icon: UserPlus, label: "Setup", href: "dashboard/setup" },
   ];
 
   const toggleSidebar = () => {
