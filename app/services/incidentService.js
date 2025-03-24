@@ -1,4 +1,4 @@
-const baseUrl = "https://api.npfvigilant.ng";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const fetchAllIncidents = async (authToken, page = 1, perPage = 4) => {
   try {

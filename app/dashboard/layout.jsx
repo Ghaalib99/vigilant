@@ -38,7 +38,7 @@ function DashboardLayout({ children }) {
       href: "/dashboard/incidents",
     },
     { icon: BarChart2, label: "Reports", href: "/dashboard/reports" },
-    { icon: UserPlus, label: "Setup", href: "dashboard/setup" },
+    { icon: UserPlus, label: "Setup", href: "/dashboard/setup" },
   ];
 
   const toggleSidebar = () => {
@@ -204,7 +204,7 @@ function DashboardLayout({ children }) {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 bg-gray-50 p-6 overflow-y-auto">
+        <main className="flex-1 bg-gray-50 p-6 pt-2 overflow-y-auto">
           {children}
         </main>
       </div>
