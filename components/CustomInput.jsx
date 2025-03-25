@@ -77,14 +77,18 @@ export const CustomSelect = ({
 
   const selectOptions = options.map((option) => ({
     value: option.id,
-    label: option.name,
+    label:
+      option.name
+        ?.toLowerCase()
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase()) || option.bank_name,
   }));
 
   // Add a default "Select" option if needed
-  selectOptions.unshift({
-    value: "",
-    label: `Select ${label}`,
-  });
+  //   selectOptions.unshift({
+  //     value: "",
+  //     label: `Select ${label}`,
+  //   });
 
   const selectedValue = selectOptions.find(
     (option) => option.value === watch(id)
@@ -97,7 +101,7 @@ export const CustomSelect = ({
       </Label>
       <Select
         id={id}
-        instanceId={id} // To avoid SSR issues with unique IDs
+        instanceId={id}
         options={selectOptions}
         placeholder={placeholder}
         value={selectedValue}

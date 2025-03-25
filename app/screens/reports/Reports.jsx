@@ -149,7 +149,8 @@ const IncidentsReport = () => {
             " " +
             item.incident?.user?.last_name || "-",
         dateCreated:
-          new Date(item.incident?.created_at).toLocaleDateString() || "-",
+          new Date(item.incident?.created_at).toLocaleDateString("en-GB") ||
+          "-",
         transactionType: item.incident?.transaction_type?.name || "-",
         transactionReference: item.incident?.transaction_ref || "-",
         amount: `₦${parseFloat(item.incident?.amount).toLocaleString() || "0"}`,

@@ -68,3 +68,27 @@ export const fetchSetupRoles = async (authToken) => {
     throw error;
   }
 };
+
+export const createUser = async (authToken, payload) => {
+  try {
+    const response = await fetch(`${baseUrl}/admin/auth/register-admin`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error creating user:", error.message);
+    throw error;
+  }
+};

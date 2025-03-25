@@ -12,14 +12,16 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
+import toast from "react-hot-toast";
 import { CustomInput, CustomSelect } from "@/components/CustomInput";
 import {
+  createUser,
   fetchSetupBanks,
   fetchSetupEntities,
   fetchSetupRoles,
 } from "@/app/services/setupService";
 import { useSelector } from "react-redux";
+import Loading from "@/components/Loading";
 
 const Setup = () => {
   const authToken = useSelector((state) => state.auth.token);
@@ -29,6 +31,8 @@ const Setup = () => {
   const [entities, setEntities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [isBank, setIsBank] = useState(false);
+  const [isBankEntity, setIsBankEntity] = useState(false);
 
   const {
     register,
@@ -44,11 +48,30 @@ const Setup = () => {
       phone: "",
       email: "",
       password: "",
-      entity_id: "4", // Pre-filled from your data
-      role_id: "6", // Pre-filled from your data
+      entity_id: "",
+      role_id: "",
       bank_id: "",
     },
   });
+
+  const watchEntityId = watch("entity_id");
+
+  useEffect(() => {
+    if (watchEntityId) {
+      const selectedEntity = entities.find(
+        (entity) => entity.id === watchEntityId
+      );
+      console.log(selectedEntity);
+      const isBank =
+        selectedEntity?.name === "Bank" || selectedEntity?.is_bank || false;
+      setIsBankEntity(isBank);
+      if (!isBank) {
+        setValue("bank_id", "", { shouldValidate: true });
+      }
+    } else {
+      setIsBankEntity(false);
+    }
+  }, [watchEntityId, entities, setValue]);
 
   const getBanks = async () => {
     try {
@@ -111,14 +134,22 @@ const Setup = () => {
     getRoles();
   }, []);
 
-  const onSubmit = (data) => {
-    console.log(data);
-    toast.success({
-      title: "User Created Successfully",
-      description: `Created user: ${data.first_name} ${data.last_name}`,
-    });
-    reset();
+  const onSubmit = async (data) => {
+    try {
+      setLoading(true);
+      console.log(data);
+
+      const response = await createUser(authToken, data);
+      toast.success("User created successfully!");
+    } catch (error) {
+      toast.error("Error cretaing user");
+    } finally {
+      setLoading(false);
+      reset();
+    }
   };
+
+  if (loading) return <Loading />;
 
   return (
     <div className="w-full  bg-gray-50 p-4 pt-0">
@@ -238,15 +269,17 @@ const Setup = () => {
               />
             </div>
 
-            <CustomSelect
-              id="bank_id"
-              label="Bank (Optional)"
-              options={banks}
-              register={register}
-              errors={errors}
-              setValue={setValue}
-              watch={watch}
-            />
+            {isBankEntity && (
+              <CustomSelect
+                id="bank_id"
+                label="Bank"
+                options={banks}
+                register={register}
+                errors={errors}
+                setValue={setValue}
+                watch={watch}
+              />
+            )}
 
             <Button type="submit" className="w-full">
               Create User
