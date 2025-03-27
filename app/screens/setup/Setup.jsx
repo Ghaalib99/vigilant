@@ -22,6 +22,7 @@ import {
 } from "@/app/services/setupService";
 import { useSelector } from "react-redux";
 import Loading from "@/components/Loading";
+import Link from "next/link";
 
 const Setup = () => {
   const authToken = useSelector((state) => state.auth.token);
@@ -153,7 +154,12 @@ const Setup = () => {
 
   return (
     <div className="w-full  bg-gray-50 p-4 pt-0">
-      <h2 className="text-2xl font-bold mb-1">Setup New User</h2>
+      <div className="w-full flex items-center justify-between my-4">
+        <h2 className="text-2xl font-bold">Setup New User</h2>
+        <Link href="/dashboard/setup/actions">
+          <Button>View Actions</Button>
+        </Link>
+      </div>
       <CardDescription className=" mb-2">
         Enter the user details to create a new account
       </CardDescription>
