@@ -32,16 +32,18 @@ const TableComponent = ({
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto w-full">
       <table
-        className={className || "min-w-full bg-white border border-gray-200"}
+        className={
+          className || "w-full table-layout-fixed border border-gray-200"
+        }
       >
-        <thead className="text-left">
+        <thead className="sticky top-0 text-left bg-white">
           <tr>
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={headerClassName || "py-2 px-4 border-b"}
+                className={headerClassName || "w-1/2 py-2 px-4 border-b"}
               >
                 {column.header}
               </th>
@@ -58,7 +60,9 @@ const TableComponent = ({
               {columns.map((column) => (
                 <td
                   key={`${column.key}-${rowIndex}`}
-                  className={cellClassName || "py-3 px-4 border-b"}
+                  className={
+                    cellClassName || "py-3 px-4 border-b max-w-[200px]"
+                  }
                 >
                   {column.render ? column.render(row) : row[column.key]}
                 </td>
