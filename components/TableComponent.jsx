@@ -32,10 +32,8 @@ const TableComponent = ({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table
-        className={className || "min-w-full bg-white border border-gray-200"}
-      >
+    <div className="overflow-x-auto w-full">
+      <table className={className || "w-[80%] bg-white border border-gray-200"}>
         <thead className="text-left">
           <tr>
             {columns.map((column) => (

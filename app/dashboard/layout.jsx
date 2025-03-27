@@ -23,6 +23,7 @@ import Image from "next/image";
 import defaultImg from "@/public/NpfLogo.png";
 import { Badge } from "@/components/ui/badge";
 import { usePathname } from "next/navigation";
+import { useAuthProtection } from "../hooks/useAuthProtection";
 
 function DashboardLayout({ children }) {
   const pathname = usePathname();
@@ -48,6 +49,8 @@ function DashboardLayout({ children }) {
   const toggleUserInfo = () => {
     setIsUserInfoOpen(!isUserInfoOpen);
   };
+
+  useAuthProtection();
 
   return (
     <div className="flex h-screen">
