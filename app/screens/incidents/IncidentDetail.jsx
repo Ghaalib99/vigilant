@@ -28,7 +28,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { IncidentDetailsTab } from "@/components/incidents/IncidentDetailsTab";
 import { CommentsTab } from "@/components/incidents/CommentsTab";
-import { ActivityLogTab } from "@/components/incidents/ActivityLogTab";
 import { AssignModal } from "@/components/incidents/AssignModal";
 import Loading from "@/components/Loading";
 import {
@@ -41,6 +40,7 @@ import {
 import toast from "react-hot-toast";
 import { useAuth } from "@/app/hooks/useAuth";
 import { updateIncidentStatus } from "@/app/store/slices/incidentsSlice";
+import ActivityLogTab from "@/components/incidents/ActivityLogTab";
 
 const IncidentDetail = ({ params }) => {
   const router = useRouter();
@@ -58,7 +58,7 @@ const IncidentDetail = ({ params }) => {
 
   const { user } = useAuth();
   const nonAssigningPersonnel =
-    user?.role?.name === "npf-investigator" ||
+    user?.role?.name === "npf-prosecutor" ||
     user?.role?.name === "bank-finance";
 
   const [incident, setIncident] = useState(null);
@@ -347,9 +347,9 @@ const IncidentDetail = ({ params }) => {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+    <div className=" bg-gray-50 min-h-screen">
+      <div className="bg-white shadow-md rounded-lg p-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-3">
           <div className="flex items-center mb-4 md:mb-0">
             <Button variant="ghost" onClick={handleBack} className="mr-4 p-2">
               <ArrowLeft className="h-5 w-5" />
@@ -371,7 +371,7 @@ const IncidentDetail = ({ params }) => {
 
         {/* Tabs */}
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-2">
             <TabsTrigger
               value="details"
               className="flex items-center justify-center"
@@ -400,7 +400,7 @@ const IncidentDetail = ({ params }) => {
             <IncidentDetailsTab incident={incident} />
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 mt-8">
-              {!nonAssigningPersonnel ? (
+              {!nonAssigningPersonnel && (
                 <>
                   <Button
                     onClick={() => setIsResponseModalOpen(true)}
@@ -417,16 +417,6 @@ const IncidentDetail = ({ params }) => {
                     </Button>
                   )}
                 </>
-              ) : (
-                // <Button
-                //   onClick={() => setTabValue("comments")} // Switch to Comments tab
-                //   disabled={hasResponded}
-                //   className="py-2 h-11 bg-primary hover:bg-primary/50 text-white w-1/2"
-                // >
-                //   <MessageCircle size={20} className="mr-2" />
-                //   Add Comment
-                // </Button>
-                <></>
               )}
             </div>
           </TabsContent>

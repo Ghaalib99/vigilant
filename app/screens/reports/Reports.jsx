@@ -1,5 +1,9 @@
 "use client";
-import { fetchIncidents, acceptIncident } from "@/app/services/incidentService";
+import {
+  fetchIncidents,
+  acceptIncident,
+  fetchAllIncidents,
+} from "@/app/services/incidentService";
 import TableComponent from "@/components/TableComponent";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useMemo } from "react";
@@ -48,8 +52,9 @@ import {
 } from "@/app/store/slices/incidentsSlice";
 import Papa from "papaparse";
 
-import { jsPDF } from "jspdf";
+import jsPDF from "jspdf";
 import "jspdf-autotable";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,19 +69,18 @@ const IncidentsReport = () => {
   const incidentsState = useSelector((state) => state.incidents);
   const { user } = useAuth();
 
-  const {
-    incidents = [],
-    loading = false,
-    error = null,
-  } = incidentsState || {};
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [incidents, setIncidents] = useState();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(4);
+  const [meta, setMeta] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [dateRange, setDateRange] = useState("all");
   const [currentTab, setCurrentTab] = useState("all");
 
-  // Stats for dashboard cards
   const stats = useMemo(() => {
     if (!incidents || !incidents.length)
       return {
@@ -107,15 +111,29 @@ const IncidentsReport = () => {
     };
   }, [incidents]);
 
+  const getAllIncidents = async (page = 1, perPage = 4) => {
+    setLoading(true);
+    try {
+      const response = await fetchAllIncidents(authToken, page, perPage);
+      setIncidents(response?.data);
+      setMeta(response?.meta);
+      setCurrentPage(response?.meta?.current_page || 1);
+    } catch (error) {
+      console.error("Error fetching logs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (authToken) {
-      dispatch(getIncidents(authToken));
+      getAllIncidents();
     }
   }, [dispatch, authToken]);
 
   const handleRefresh = () => {
     toast.success("Refreshing incidents...");
-    dispatch(getIncidents(authToken));
+    getAllIncidents();
   };
 
   const formattedData = useMemo(() => {
@@ -131,7 +149,8 @@ const IncidentsReport = () => {
             " " +
             item.incident?.user?.last_name || "-",
         dateCreated:
-          new Date(item.incident?.created_at).toLocaleDateString() || "-",
+          new Date(item.incident?.created_at).toLocaleDateString("en-GB") ||
+          "-",
         transactionType: item.incident?.transaction_type?.name || "-",
         transactionReference: item.incident?.transaction_ref || "-",
         amount: `₦${parseFloat(item.incident?.amount).toLocaleString() || "0"}`,
@@ -330,48 +349,85 @@ const IncidentsReport = () => {
   };
 
   const exportToPDF = () => {
-    // Create a new jsPDF instance
-    const doc = new jsPDF();
+    try {
+      const doc = new jsPDF();
 
-    // Define table columns
-    const tableColumn = [
-      "ID",
-      "Reported By",
-      "Date",
-      "Type",
-      "Amount",
-      "Transaction Ref",
-      "Bank",
-      "Status",
-    ];
+      // Add title
+      doc.text("Incident Reports", 14, 16);
 
-    // Prepare table rows
-    const tableRows = filteredData.map((item) => [
-      item.incidentId,
-      item.reportedBy,
-      item.dateCreated,
-      item.transactionType,
-      item.amount,
-      item.transactionReference,
-      item.bank,
-      item.status,
-    ]);
+      // Create a table manually without autoTable
+      const tableData = filteredData.map((item) => [
+        item.incidentId,
+        item.reportedBy,
+        item.dateCreated,
+        item.transactionType,
+        item.amount,
+        item.transactionReference.substring(0, 10), // Trim long references
+        item.bank,
+        item.status,
+      ]);
 
-    // Add title to the PDF
-    doc.text("Incident Reports", 14, 15);
+      // Table headers
+      const headers = [
+        "ID",
+        "Reported By",
+        "Date",
+        "Type",
+        "Amount",
+        "Ref",
+        "Bank",
+        "Status",
+      ];
 
-    // Use autoTable to generate the table
-    doc.autoTable({
-      head: [tableColumn], // Table header
-      body: tableRows, // Table data
-      startY: 20, // Start table below the title
-    });
+      // Set starting position
+      let y = 30;
+      const rowHeight = 10;
+      const colWidth = 25;
 
-    // Save the PDF
-    doc.save("incident_reports.pdf");
+      // Draw headers
+      doc.setFillColor(220, 220, 220);
+      doc.setDrawColor(0);
+      doc.rect(10, y, colWidth * headers.length, rowHeight, "FD");
+      doc.setFontSize(10);
+      doc.setTextColor(0);
 
-    // Notify the user
-    toast.success("Data exported to PDF successfully!");
+      headers.forEach((header, i) => {
+        doc.text(header, 12 + i * colWidth, y + 7);
+      });
+
+      // Draw rows
+      y += rowHeight;
+      tableData.forEach((row, rowIndex) => {
+        // Alternate row background for readability
+        if (rowIndex % 2 === 0) {
+          doc.setFillColor(245, 245, 245);
+          doc.rect(10, y, colWidth * headers.length, rowHeight, "F");
+        }
+
+        row.forEach((cell, i) => {
+          // Convert cell to string and limit length
+          const text = String(cell || "").substring(0, 15);
+          doc.text(text, 12 + i * colWidth, y + 7);
+        });
+
+        y += rowHeight;
+
+        // Add new page if necessary
+        if (y > 280) {
+          doc.addPage();
+          y = 20;
+        }
+      });
+
+      // Save the PDF
+      doc.save("incident_reports.pdf");
+
+      // Notify the user
+      toast.success("Data exported to PDF successfully!");
+    } catch (error) {
+      console.error("Error exporting to PDF:", error);
+      toast.error("Failed to export data to PDF.");
+    }
   };
 
   return (
@@ -599,6 +655,9 @@ const IncidentsReport = () => {
                       headerClassName="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       rowClassName="bg-white hover:bg-blue-50 transition-colors duration-150 cursor-pointer"
                       cellClassName="px-6 py-3 whitespace-nowrap text-sm text-gray-500"
+                      meta={meta}
+                      onPageChange={(page) => getAllIncidents(page)}
+                      loading={loading}
                     />
                   </div>
                 ) : (
@@ -640,12 +699,8 @@ const IncidentsReport = () => {
           </TabsContent>
 
           <TabsContent value="pending">
-            {/* Content is managed by the filter on the "all" tab */}
             <Card className="bg-white border-0 shadow-sm">
               <CardContent className="p-0">
-                {/* Similar structure as the "all" tab but with pre-filtered data */}
-                {/* Using the same rendering logic as above */}
-                {/* Table content would appear here */}
                 {loading ? (
                   <div className="p-8">
                     <Loading />
@@ -668,7 +723,6 @@ const IncidentsReport = () => {
           </TabsContent>
 
           <TabsContent value="accepted">
-            {/* Similar structure */}
             <Card className="bg-white border-0 shadow-sm">
               <CardContent className="p-0">
                 {loading ? (
@@ -693,7 +747,6 @@ const IncidentsReport = () => {
           </TabsContent>
 
           <TabsContent value="declined">
-            {/* Similar structure */}
             <Card className="bg-white border-0 shadow-sm">
               <CardContent className="p-0">
                 {loading ? (

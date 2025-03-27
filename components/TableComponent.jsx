@@ -1,34 +1,65 @@
-import React, { useState } from "react";
+import React from "react";
+import { Button } from "@/components/ui/button";
 
-const TableComponent = ({ data, columns, itemsPerPage = 10, onRowClick }) => {
-  const [currentPage, setCurrentPage] = useState(1);
+const TableComponent = ({
+  data,
+  columns,
+  onRowClick,
+  className,
+  headerClassName,
+  rowClassName,
+  cellClassName,
+  meta,
+  onPageChange,
+  loading,
+}) => {
+  const handlePageChange = (newPage) => {
+    if (onPageChange) {
+      onPageChange(newPage);
+    }
+  };
 
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentData = data.slice(startIndex, endIndex);
+  const currentPage = meta?.current_page || 1;
+  const totalPages = meta?.last_page || 1;
+  const from = meta?.from || 0;
+  const to = meta?.to || 0;
+  const total = meta?.total || 0;
+
+  if (data.length === 0 && !loading) {
+    return (
+      <div className="p-6 text-center text-gray-500">No data available.</div>
+    );
+  }
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-200">
+      <table
+        className={className || "min-w-full bg-white border border-gray-200"}
+      >
         <thead className="text-left">
-          <tr className="bg-gray-100">
+          <tr>
             {columns.map((column) => (
-              <th key={column.key} className="py-2 px-4 border-b">
+              <th
+                key={column.key}
+                className={headerClassName || "py-2 px-4 border-b"}
+              >
                 {column.header}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {currentData.map((row, rowIndex) => (
+          {data.map((row, rowIndex) => (
             <tr
-              key={rowIndex}
+              key={row.id || rowIndex}
               onClick={() => onRowClick && onRowClick(row)}
-              className="hover:bg-gray-50 cursor-pointer"
+              className={rowClassName || "hover:bg-gray-50 cursor-pointer"}
             >
               {columns.map((column) => (
-                <td key={column.key} className="py-3 px-4 border-b">
+                <td
+                  key={`${column.key}-${rowIndex}`}
+                  className={cellClassName || "py-3 px-4 border-b"}
+                >
                   {column.render ? column.render(row) : row[column.key]}
                 </td>
               ))}
@@ -37,28 +68,69 @@ const TableComponent = ({ data, columns, itemsPerPage = 10, onRowClick }) => {
         </tbody>
       </table>
 
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-4">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      {/* Pagination Controls */}
+      {meta && (
+        <div className="flex justify-between items-center p-4 border-t">
+          <div>
+            <span className="text-sm text-gray-500">
+              {total > 0
+                ? `Showing ${from} to ${to} of ${total} entries`
+                : "No entries found"}
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+            >
+              Previous
+            </Button>
+
+            {/* Page number indicators */}
+            <div className="flex items-center space-x-1">
+              {[...Array(Math.min(5, totalPages))].map((_, idx) => {
+                // Logic to show pages around current page
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = idx + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = idx + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + idx;
+                } else {
+                  pageNum = currentPage - 2 + idx;
+                }
+
+                if (pageNum > 0 && pageNum <= totalPages) {
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      className="w-8 h-8 p-0"
+                      onClick={() => handlePageChange(pageNum)}
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                }
+                return null;
+              })}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage >= totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,4 +1,29 @@
-const baseUrl = "https://api.npfvigilant.ng";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
+export const fetchAllIncidents = async (authToken, page = 1, perPage = 4) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/admin/dashboard/incidents?page=${page}&per_page=${perPage}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch dashboard data");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching incidents:", error.message);
+    throw error;
+  }
+};
 
 export const fetchIncidents = async (authToken) => {
   try {
@@ -235,6 +260,37 @@ export const fetchIncidentComments = async (authToken, incidentId) => {
     return data;
   } catch (error) {
     console.error("Error fetching banks:", error.message);
+    throw error;
+  }
+};
+
+export const fetchIncidentlogs = async (
+  authToken,
+  incidentId,
+  page = 1,
+  perPage = 4
+) => {
+  try {
+    const response = await fetch(
+      `${baseUrl}/admin/dashboard/incident/${incidentId}/logs?page=${page}&per_page=${perPage}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching incident logs:", error.message);
     throw error;
   }
 };
