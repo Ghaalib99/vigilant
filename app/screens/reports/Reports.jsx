@@ -293,7 +293,7 @@ const IncidentsReport = () => {
       header: "Action",
       render: (row) => (
         <Button
-          onClick={() => handleViewDetails(row)}
+          // onClick={() => handleViewDetails(row)}
           variant="outline"
           size="sm"
           className="flex items-center bg-transparent border-primary text-primary hover:bg-primary/10"
@@ -502,7 +502,7 @@ const IncidentsReport = () => {
           <Card className="bg-white">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium text-gray-700">
-                Pending
+                Pending Incidents
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -516,7 +516,7 @@ const IncidentsReport = () => {
           <Card className="bg-white">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium text-gray-700">
-                Accepted
+                Accepted Incidents
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -530,7 +530,7 @@ const IncidentsReport = () => {
           <Card className="bg-white">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium text-gray-700">
-                Declined
+                Declined Incidents
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -655,7 +655,7 @@ const IncidentsReport = () => {
                     <TableComponent
                       data={filteredData}
                       columns={columns}
-                      onRowClick={handleRowClick}
+                      // onRowClick={handleRowClick}
                       className="min-w-full divide-y divide-gray-200"
                       headerClassName="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       rowClassName="bg-white hover:bg-blue-50 transition-colors duration-150 cursor-pointer"

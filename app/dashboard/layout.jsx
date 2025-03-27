@@ -42,6 +42,24 @@ function DashboardLayout({ children }) {
     { icon: UserPlus, label: "Setup", href: "/dashboard/setup" },
   ];
 
+  const restrictedPages = {
+    Setup: [
+      "vgn-customer-service",
+      "npf-investigator",
+      "npf-prosecutor",
+      "bank-fraud-desk",
+      "bank-internal-control",
+      "bank-internal-audit",
+      "bank-risk",
+    ],
+    Incidents: ["super"],
+    Reports: ["super"],
+  };
+
+  const filteredMenuItems = menuItems.filter(
+    ({ label }) => !restrictedPages[label]?.includes(user?.role?.name)
+  );
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -71,7 +89,7 @@ function DashboardLayout({ children }) {
         </Button>
 
         {/* Menu Items */}
-        {menuItems.map(({ icon: Icon, label, href }, index) => (
+        {filteredMenuItems.map(({ icon: Icon, label, href }, index) => (
           <Link
             key={index}
             href={href}
