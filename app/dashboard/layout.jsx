@@ -187,9 +187,11 @@ function DashboardLayout({ children }) {
             </div>
 
             {/* Notifications */}
-            <Button variant="ghost" size="icon">
-              <Bell className="h-5 w-5 text-gray-600" />
-            </Button>
+            <Link href="/dashboard/notifications">
+              <Button variant="ghost" size="icon">
+                <Bell className="h-5 w-5 text-gray-600" />
+              </Button>
+            </Link>
 
             {/* User Avatar */}
             <Avatar>

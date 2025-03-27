@@ -117,6 +117,7 @@ const Incidents = () => {
           variant={
             row.transactionType === "Fraud" ? "destructive" : "secondary"
           }
+          className="max-w-[100px] truncate"
         >
           {row.transactionType}
         </Badge>
@@ -139,7 +140,11 @@ const Incidents = () => {
     {
       key: "bank",
       header: "Bank",
-      render: (row) => <span className="text-xs">{row.bank}</span>,
+      render: (row) => (
+        <span className="inline-block text-xs max-w-[100px] truncate">
+          {row.bank}
+        </span>
+      ),
     },
     {
       key: "status",
