@@ -114,8 +114,12 @@ const IncidentDetail = ({ params }) => {
 
       const response = await assignIncident(authToken, JSON.stringify(payload));
 
-      console.log(response);
-      toast.success("Incident assigned successfully");
+      if (response?.status === true) {
+        toast.success("Incident assigned successfully");
+      } else {
+        toast.error(response?.message);
+      }
+
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error assigning incident:", error);
