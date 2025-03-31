@@ -88,43 +88,36 @@ const IncidentDetail = ({ params }) => {
       } else if (selectedOption === "police") {
         entityIdToUse = isNpf;
       }
-      console.log(entityIdToUse);
+
       if (!entityIdToUse) {
-        setError("Entity ID not found for the selected option");
-        return;
+        throw new Error("Entity ID not found for the selected option");
       }
 
       if (!selectedSegment || !selectedSegment.id) {
-        setError("No segment available for the selected entity");
-        return;
+        throw new Error("No segment available for the selected entity");
       }
 
       const payload = {
         incident_assignment_id: assignmentId.toString(),
         segment_id: selectedSegment.id.toString(),
         incident_id: incidentId.toString(),
-        // bank_id: selectedBank ? selectedBank.toString() : "",
         bank_id:
           selectedOption === "bank" ? (bankId ? bankId.toString() : "") : "",
         entity_id: entityIdToUse.toString(),
         comment: comment,
       };
 
-      console.log(payload);
-
       const response = await assignIncident(authToken, JSON.stringify(payload));
-
-      if (response?.status === true) {
-        toast.success("Incident assigned successfully");
-      } else {
-        toast.error(response?.message);
+      if (!response.success) {
+        throw new Error(response.message || "Failed to assign incident");
       }
 
+      toast.success(response.message);
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error assigning incident:", error);
-      toast.error("Failed to assign incident");
-      setError(error.message || "Failed to assign incident");
+      toast.error(error.message);
+      setError(error.message);
     } finally {
       setSubmittingComment(false);
     }
