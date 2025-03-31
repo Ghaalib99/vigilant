@@ -61,6 +61,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { setFromReports } from "@/app/store/slices/fromReportsSlice";
 
 const IncidentsReport = () => {
   const router = useRouter();
@@ -310,8 +311,11 @@ const IncidentsReport = () => {
     dispatch(setAssignmentId(row.assignmentId));
     dispatch(setBankId(row.bankId));
     dispatch(setIncidentStatus(row.status));
+    dispatch(setFromReports(true));
 
-    router.push(`/dashboard/incidents/incident-detail/${row.incidentId}`);
+    router.push(
+      `/dashboard/incidents/incident-detail/${row.incidentId}?from=reports`
+    );
   };
 
   const handleRowClick = (row) => {
@@ -655,7 +659,7 @@ const IncidentsReport = () => {
                     <TableComponent
                       data={filteredData}
                       columns={columns}
-                      // onRowClick={handleRowClick}
+                      onRowClick={handleRowClick}
                       className="min-w-full divide-y divide-gray-200"
                       headerClassName="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       rowClassName="bg-white hover:bg-blue-50 transition-colors duration-150 cursor-pointer"

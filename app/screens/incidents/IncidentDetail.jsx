@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -45,6 +45,7 @@ import ActivityLogTab from "@/components/incidents/ActivityLogTab";
 const IncidentDetail = ({ params }) => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { from } = useParams();
   const incidentId = useSelector((state) => state.incidents.selectedIncidentId);
   const assignmentId = useSelector(
     (state) => state.incidents.selectedAssignmentId
@@ -53,6 +54,8 @@ const IncidentDetail = ({ params }) => {
   const acceptanceStatus = useSelector(
     (state) => state.incidents.selectedIncidentStatus
   );
+
+  const fromReports = useSelector((state) => state.fromReports.fromReports);
 
   const authToken = useSelector((state) => state.auth.token);
 
@@ -397,20 +400,18 @@ const IncidentDetail = ({ params }) => {
             <IncidentDetailsTab incident={incident} />
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 mt-8">
-              {!nonAssigningPersonnel && (
+              {!(nonAssigningPersonnel || fromReports) && (
                 <>
                   <Button
                     onClick={() => setIsResponseModalOpen(true)}
                     disabled={hasResponded}
                     className="py-2 h-11 bg-green-600 hover:bg-green-700 text-white"
                   >
-                    <Mouse className="h-5 w-5 mr-2" />
-                    Respond
+                    <Mouse className="h-5 w-5 mr-2" /> Respond
                   </Button>
                   {acceptanceStatus !== "Pending" && (
                     <Button onClick={handleAssignModal} className="py-2 h-11">
-                      <User className="h-5 w-5 mr-2" />
-                      Assign
+                      <User className="h-5 w-5 mr-2" /> Assign
                     </Button>
                   )}
                 </>

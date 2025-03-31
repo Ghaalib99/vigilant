@@ -31,6 +31,7 @@ import {
   setIncidentStatus,
 } from "@/app/store/slices/incidentsSlice";
 import { Badge } from "@/components/ui/badge";
+import { setFromReports } from "@/app/store/slices/fromReportsSlice";
 
 const Incidents = () => {
   const router = useRouter();
@@ -213,6 +214,7 @@ const Incidents = () => {
     dispatch(setAssignmentId(row.assignmentId));
     dispatch(setBankId(row.bankId));
     dispatch(setIncidentStatus(row.status));
+    dispatch(setFromReports(false));
 
     router.push(`/dashboard/incidents/incident-detail/${row.incidentId}`);
   };
