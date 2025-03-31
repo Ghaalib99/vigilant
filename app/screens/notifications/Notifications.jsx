@@ -11,6 +11,7 @@ import {
   markNotificationAsRead,
 } from "@/app/services/notificationService";
 import { useSelector } from "react-redux";
+import Loading from "@/components/Loading";
 
 export default function Notifications() {
   const authToken = useSelector((state) => state.auth.token);
@@ -83,18 +84,7 @@ export default function Notifications() {
 
   // Render loading state
   if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Bell className="mr-2" /> Notifications
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Loading notifications...</p>
-        </CardContent>
-      </Card>
-    );
+    return <Loading />;
   }
 
   // Render error state
@@ -120,9 +110,6 @@ export default function Notifications() {
 
       <Card className="w-full max-w-md">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center">
-            <Bell className="mr-2" /> Notifications
-          </CardTitle>
           {notifications.some((n) => !n.read) && (
             <Button variant="outline" size="sm" onClick={handleMarkAllAsRead}>
               <MailOpen className="mr-2 h-4 w-4" /> Mark All Read

@@ -13,6 +13,9 @@ import {
   UserCheck,
   FileStack,
   UserPlus,
+  UserCircle,
+  Mail,
+  ChevronRight,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,13 +25,13 @@ import { useAuth } from "../hooks/useAuth";
 import Image from "next/image";
 import defaultImg from "@/public/NpfLogo.png";
 import { Badge } from "@/components/ui/badge";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuthProtection } from "../hooks/useAuthProtection";
 
 function DashboardLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
   const { logout, user } = useAuth();
 
   const menuItems = [
@@ -64,8 +67,8 @@ function DashboardLayout({ children }) {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const toggleUserInfo = () => {
-    setIsUserInfoOpen(!isUserInfoOpen);
+  const navigateToProfile = () => {
+    router.push("/dashboard/profile");
   };
 
   useAuthProtection();
@@ -124,86 +127,6 @@ function DashboardLayout({ children }) {
           <h1 className="text-xl font-semibold text-gray-800">NPF Vigilant</h1>
 
           <div className="flex items-center space-x-4">
-            {/* Search */}
-            {/* <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div> */}
-
-            {/* Role Badge */}
-            <div className="relative">
-              <Badge
-                // variant="outline"
-                className="cursor-pointer h-8 hover:bg-gray-100 hover:text-primary flex items-center gap-1 rounded-md"
-                onClick={toggleUserInfo}
-              >
-                <UserCheck size={20} className="h-3 w-3" />
-                <span>
-                  {user?.role?.name
-                    ?.toLowerCase()
-                    .replace(/-/g, " ")
-                    .replace(/\b\w/g, (char) => char.toUpperCase())}
-                </span>
-              </Badge>
-
-              {/* User Info Popover */}
-              {isUserInfoOpen && (
-                <div className="absolute right-0 mt-2 z-50 min-w-[250px] w-[300px] bg-white text-primary border rounded-md shadow-lg p-4">
-                  <div className="space-y-2">
-                    <div className="space-y-1 text-sm">
-                      <p className="font-semibold py-2 border-b">
-                        <span className="font-medium inline-block w-[50px] mr-4">
-                          Name:
-                        </span>{" "}
-                        {user?.first_name} {user?.last_name}
-                      </p>
-                      <p className="font-semibold py-2 border-b">
-                        <span className="font-medium inline-block w-[50px] mr-4">
-                          Email:
-                        </span>{" "}
-                        {user?.email}
-                      </p>
-                      <p className="font-semibold py-2 border-b">
-                        <span className="font-medium inline-block w-[50px] mr-4">
-                          Phone:
-                        </span>{" "}
-                        {user?.phone}
-                      </p>
-                      <p className="font-semibold py-2 border-b">
-                        <span className="font-medium inline-block w-[50px] mr-4">
-                          Role:
-                        </span>{" "}
-                        {user?.role?.name
-                          ?.toLowerCase()
-                          .replace(/-/g, " ")
-                          .replace(/\b\w/g, (char) => char.toUpperCase())}
-                      </p>
-                      {user?.entity && (
-                        <p className="font-semibold py-2 border-b">
-                          <span className="font-medium inline-block w-[50px] mr-4">
-                            Entity:
-                          </span>{" "}
-                          {user?.entity?.name}
-                        </p>
-                      )}
-                      {user?.bank && (
-                        <p className="font-semibold py-2 border-b">
-                          <span className="font-medium inline-block w-[50px] mr-4">
-                            Bank:
-                          </span>{" "}
-                          {user?.bank?.bank_name}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Notifications */}
             <Link href="/dashboard/notifications">
               <Button variant="ghost" size="icon">
@@ -226,8 +149,37 @@ function DashboardLayout({ children }) {
           </div>
         </header>
 
+        {/* Profile Info Bar */}
+        <div
+          onClick={navigateToProfile}
+          className="w-full bg-gray-50 border-b px-6 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition-colors"
+        >
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center">
+              <UserCircle className="h-5 w-5 text-primary mr-2" />
+              <span className="font-medium text-gray-700">
+                {user?.first_name} {user?.last_name}
+              </span>
+            </div>
+            <div className="hidden md:flex items-center">
+              <Mail className="h-4 w-4 text-gray-500 mr-1" />
+              <span className="text-sm text-gray-600">{user?.email}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center">
+            <Badge className="bg-primary/10 text-primary border-0">
+              {user?.role?.name
+                ?.toLowerCase()
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, (char) => char.toUpperCase())}
+            </Badge>
+            <ChevronRight className="h-4 w-4 text-gray-400 ml-2" />
+          </div>
+        </div>
+
         {/* Main Content */}
-        <main className="flex-1 bg-gray-50 p-6 pt-2 overflow-y-auto">
+        <main className="flex-1 bg-gray-50 p-6 pt-4 overflow-y-auto">
           {children}
         </main>
       </div>
