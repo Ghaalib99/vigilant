@@ -296,3 +296,25 @@ export const fetchIncidentlogs = async (
     throw error;
   }
 };
+
+export const fetchIncidentTypes = async (authToken) => {
+  try {
+    const response = await fetch(`${baseUrl}/types/types`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch incident types");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching types:", error.message);
+    throw error;
+  }
+};

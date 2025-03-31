@@ -3,6 +3,7 @@ import {
   fetchIncidents,
   acceptIncident,
   fetchAllIncidents,
+  fetchIncidentTypes,
 } from "@/app/services/incidentService";
 import TableComponent from "@/components/TableComponent";
 import { useRouter } from "next/navigation";
@@ -73,6 +74,7 @@ const IncidentsReport = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [incidents, setIncidents] = useState();
+  const [incidentTypes, setIncidentTypes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(4);
   const [meta, setMeta] = useState({});
@@ -126,15 +128,30 @@ const IncidentsReport = () => {
     }
   };
 
+  const getIncidentTypes = async () => {
+    setLoading(true);
+    try {
+      const response = await fetchIncidentTypes(authToken);
+      // console.log("Incident Types Response:", response);
+      setIncidentTypes([...response.data]);
+    } catch (error) {
+      console.error("Error fetching incident types:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (authToken) {
       getAllIncidents();
+      getIncidentTypes();
     }
-  }, [dispatch, authToken]);
+  }, [authToken]);
 
   const handleRefresh = () => {
     toast.success("Refreshing incidents...");
     getAllIncidents();
+    setTypeFilter("all");
   };
 
   const formattedData = useMemo(() => {
@@ -638,9 +655,17 @@ const IncidentsReport = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Types</SelectItem>
-                        <SelectItem value="fraud">Fraud</SelectItem>
-                        <SelectItem value="theft">Theft</SelectItem>
+                        {incidentTypes.length > 0 ? (
+                          incidentTypes.map((type) => (
+                            <SelectItem key={type.id} value={type.name}>
+                              {type.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem disabled>No types available</SelectItem>
+                        )}
                       </SelectContent>
+                      ;
                     </Select>
                   </div>
                 </div>
