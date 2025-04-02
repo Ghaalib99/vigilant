@@ -16,7 +16,6 @@ export const useAuth = () => {
   const { loading, error, otpRequired, email, user } = useSelector(
     (state) => state.auth
   );
-  // const baseUrl = process.env.APP_BASE_URL;
 
   // Login function
   const login = async (email, password) => {

@@ -20,7 +20,7 @@ const Signin = () => {
 
   return (
     <div className="bg-white w-full h-screen flex justify-center items-center">
-      <div className="w-[30%] border rounded-xl p-6 flex flex-col space-y-4">
+      <div className="w-[90%] md:w-[50%] lg:w-[30%] border rounded-xl p-6 flex flex-col space-y-4">
         <Image
           src="/Logo.png"
           width={150}
