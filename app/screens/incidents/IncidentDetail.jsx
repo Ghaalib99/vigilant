@@ -24,6 +24,7 @@ import {
   AlertCircle,
   Mouse,
   MessageCircle,
+  ChevronLeft,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { IncidentDetailsTab } from "@/components/incidents/IncidentDetailsTab";
@@ -352,11 +353,11 @@ const IncidentDetail = ({ params }) => {
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-3">
           <div className="flex items-center mb-4 md:mb-0">
             <Button variant="ghost" onClick={handleBack} className="mr-4 p-2">
-              <ArrowLeft className="h-5 w-5" />
+              <ChevronLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900">
+            {/* <h1 className="text-2xl font-bold text-gray-900">
               Incident #{incident.id}
-            </h1>
+            </h1> */}
           </div>
           <div className="flex space-x-3">
             {renderStatusBadge(

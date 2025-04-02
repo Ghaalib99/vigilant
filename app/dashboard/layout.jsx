@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Home,
   Settings,
@@ -16,6 +16,8 @@ import {
   UserCircle,
   Mail,
   ChevronRight,
+  Shield,
+  User,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -27,12 +29,16 @@ import defaultImg from "@/public/NpfLogo.png";
 import { Badge } from "@/components/ui/badge";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthProtection } from "../hooks/useAuthProtection";
+import { useSelector } from "react-redux";
+import { fetchUnreadNotifications } from "../services/notificationService";
 
 function DashboardLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { logout, user } = useAuth();
+  const authToken = useSelector((state) => state.auth.token);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   const menuItems = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
@@ -55,8 +61,20 @@ function DashboardLayout({ children }) {
       "bank-internal-audit",
       "bank-risk",
     ],
-    Incidents: ["super"],
-    Reports: ["super"],
+    Incidents: [
+      "super",
+      "npf-admin-inputter",
+      "npf-admin-verifier",
+      "nibss-admin-inputter",
+      "nibss-admin-verifier",
+    ],
+    Reports: [
+      "super",
+      "npf-admin-inputter",
+      "npf-admin-verifier",
+      "nibss-admin-inputter",
+      "nibss-admin-verifier",
+    ],
   };
 
   const filteredMenuItems = menuItems.filter(
@@ -70,6 +88,32 @@ function DashboardLayout({ children }) {
   const navigateToProfile = () => {
     router.push("/dashboard/profile");
   };
+
+  // Fetch unread notifications count
+  useEffect(() => {
+    const fetchUnreadNotificationsCount = async () => {
+      try {
+        if (!authToken) return;
+
+        const response = await fetchUnreadNotifications(authToken);
+        if (response && response.data) {
+          setUnreadNotificationsCount(response.data.length);
+        }
+      } catch (error) {
+        console.error("Error fetching unread notifications:", error);
+      }
+    };
+
+    fetchUnreadNotificationsCount();
+
+    // Set up polling to check for new notifications every 5 minutes
+    const intervalId = setInterval(
+      fetchUnreadNotificationsCount,
+      5 * 60 * 1000
+    );
+
+    return () => clearInterval(intervalId);
+  }, [authToken]);
 
   useAuthProtection();
 
@@ -86,7 +130,7 @@ function DashboardLayout({ children }) {
           onClick={toggleSidebar}
           variant="ghost"
           size="icon"
-          className="absolute top-4 left-4 hover:bg-gray-100"
+          className="absolute top-4 left-4 hover:bg-white/20 text-white"
         >
           <Menu className="h-5 w-5" />
         </Button>
@@ -96,10 +140,10 @@ function DashboardLayout({ children }) {
           <Link
             key={index}
             href={href}
-            className={`w-full flex items-center space-x-4 px-4 py-2 rounded-md ${
+            className={`w-full flex items-center space-x-4 px-4 py-2 rounded-md transition-colors duration-200 ${
               pathname === href
-                ? "bg-gray-300 text-primary"
-                : "hover:bg-gray-100 hover:text-primary"
+                ? "bg-white text-primary font-medium"
+                : "hover:bg-white/20 text-white"
             }`}
           >
             <Icon className="h-5 w-5" />
@@ -112,7 +156,7 @@ function DashboardLayout({ children }) {
           <Button
             onClick={logout}
             variant="ghost"
-            className="w-full flex justify-start items-center space-x-4 px-4 py-2 hover:bg-gray-100 rounded-md"
+            className="w-full flex justify-start items-center space-x-4 px-4 py-2 hover:bg-white/20 text-white rounded-md"
           >
             <LogOut className="h-5 w-5" />
             {isSidebarOpen && <span className="text-sm">Logout</span>}
@@ -123,36 +167,79 @@ function DashboardLayout({ children }) {
       {/* Main Content Area */}
       <div className="flex flex-col flex-1">
         {/* Header */}
-        <header className="bg-white border-b h-16 px-6 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-gray-800">NPF Vigilant</h1>
+        <header className="bg-white border-b h-16 px-6 flex items-center justify-between shadow-sm">
+          <h1 className="text-xl font-bold text-primary flex items-center">
+            <Shield className="h-6 w-6 mr-2 text-primary" />
+            NPF Vigilant
+          </h1>
 
           <div className="flex items-center space-x-4">
             {/* Notifications */}
-            <Link href="/dashboard/notifications">
-              <Button variant="ghost" size="icon">
-                <Bell className="h-5 w-5 text-gray-600" />
-              </Button>
-            </Link>
+            <div className="relative">
+              <Link href="/dashboard/notifications">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-gray-100 transition-colors duration-200"
+                >
+                  <Bell
+                    className={`h-5 w-5 ${
+                      unreadNotificationsCount > 0
+                        ? "text-primary animate-pulse"
+                        : "text-gray-600"
+                    }`}
+                  />
+                  {unreadNotificationsCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                      {unreadNotificationsCount > 9
+                        ? "9+"
+                        : unreadNotificationsCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+            </div>
 
             {/* User Avatar */}
-            <Avatar>
-              <AvatarImage src="/placeholder-user.jpg" alt="User avatar" />
-              <AvatarFallback>
-                <Image
-                  src={defaultImg}
-                  width={50}
-                  height={50}
-                  alt="User avatar"
-                />
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative group">
+              <Avatar className="cursor-pointer border-2 border-primary/20 hover:border-primary transition-all duration-200">
+                <AvatarImage src="/placeholder-user.jpg" alt="User avatar" />
+                <AvatarFallback>
+                  <Image
+                    src={defaultImg}
+                    width={50}
+                    height={50}
+                    alt="User avatar"
+                  />
+                </AvatarFallback>
+              </Avatar>
+
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                <div className="py-1">
+                  <button
+                    onClick={navigateToProfile}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <User className="inline-block mr-2 h-4 w-4" />
+                    Profile
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <LogOut className="inline-block mr-2 h-4 w-4" />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </header>
 
         {/* Profile Info Bar */}
         <div
           onClick={navigateToProfile}
-          className="w-full bg-gray-50 border-b px-6 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition-colors"
+          className="w-full bg-gradient-to-r from-gray-50 to-white border-b px-6 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition-colors"
         >
           <div className="flex items-center space-x-4">
             <div className="flex items-center">
@@ -168,7 +255,7 @@ function DashboardLayout({ children }) {
           </div>
 
           <div className="flex items-center">
-            <Badge className="bg-primary/10 text-primary border-0">
+            <Badge className="bg-primary/10 text-primary border-0 font-medium">
               {user?.role?.name
                 ?.toLowerCase()
                 .replace(/-/g, " ")
