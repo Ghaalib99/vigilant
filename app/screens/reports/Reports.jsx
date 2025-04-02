@@ -3,6 +3,7 @@ import {
   fetchIncidents,
   acceptIncident,
   fetchAllIncidents,
+  fetchIncidentTypes,
 } from "@/app/services/incidentService";
 import TableComponent from "@/components/TableComponent";
 import { useRouter } from "next/navigation";
@@ -61,6 +62,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { setFromReports } from "@/app/store/slices/fromReportsSlice";
 
 const IncidentsReport = () => {
   const router = useRouter();
@@ -72,6 +74,7 @@ const IncidentsReport = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [incidents, setIncidents] = useState();
+  const [incidentTypes, setIncidentTypes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(4);
   const [meta, setMeta] = useState({});
@@ -125,22 +128,38 @@ const IncidentsReport = () => {
     }
   };
 
+  const getIncidentTypes = async () => {
+    setLoading(true);
+    try {
+      const response = await fetchIncidentTypes(authToken);
+      // console.log("Incident Types Response:", response);
+      setIncidentTypes([...response.data]);
+    } catch (error) {
+      console.error("Error fetching incident types:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (authToken) {
       getAllIncidents();
+      getIncidentTypes();
     }
-  }, [dispatch, authToken]);
+  }, [authToken]);
 
   const handleRefresh = () => {
     toast.success("Refreshing incidents...");
     getAllIncidents();
+    setTypeFilter("all");
   };
 
   const formattedData = useMemo(() => {
     return incidents
       ?.slice()
       .reverse()
-      .map((item) => ({
+      .map((item, index) => ({
+        sno: index + 1,
         incidentId: item.incident?.id || "-",
         assignmentId: item.id || "-",
         bankId: item.incident?.bank?.id,
@@ -205,10 +224,10 @@ const IncidentsReport = () => {
 
   const columns = [
     {
-      key: "incidentId",
-      header: "ID",
+      key: "sno",
+      header: "S/N",
       render: (row) => (
-        <span className="font-medium text-gray-900">{row.incidentId}</span>
+        <span className="font-medium text-gray-900">{row.sno}</span>
       ),
     },
     { key: "reportedBy", header: "Reported By" },
@@ -310,8 +329,11 @@ const IncidentsReport = () => {
     dispatch(setAssignmentId(row.assignmentId));
     dispatch(setBankId(row.bankId));
     dispatch(setIncidentStatus(row.status));
+    dispatch(setFromReports(true));
 
-    router.push(`/dashboard/incidents/incident-detail/${row.incidentId}`);
+    router.push(
+      `/dashboard/incidents/incident-detail/${row.incidentId}?from=reports`
+    );
   };
 
   const handleRowClick = (row) => {
@@ -633,9 +655,17 @@ const IncidentsReport = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Types</SelectItem>
-                        <SelectItem value="fraud">Fraud</SelectItem>
-                        <SelectItem value="theft">Theft</SelectItem>
+                        {incidentTypes.length > 0 ? (
+                          incidentTypes.map((type) => (
+                            <SelectItem key={type.id} value={type.name}>
+                              {type.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem disabled>No types available</SelectItem>
+                        )}
                       </SelectContent>
+                      ;
                     </Select>
                   </div>
                 </div>
@@ -655,7 +685,7 @@ const IncidentsReport = () => {
                     <TableComponent
                       data={filteredData}
                       columns={columns}
-                      // onRowClick={handleRowClick}
+                      onRowClick={handleRowClick}
                       className="min-w-full divide-y divide-gray-200"
                       headerClassName="bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                       rowClassName="bg-white hover:bg-blue-50 transition-colors duration-150 cursor-pointer"

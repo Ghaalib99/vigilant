@@ -18,6 +18,7 @@ export const CommentsTab = () => {
 
   const incidentId = useSelector((state) => state.incidents.selectedIncidentId);
   const authToken = useSelector((state) => state.auth.token);
+  const fromReports = useSelector((state) => state.fromReports.fromReports);
 
   // Fetch comments when the component mounts or incidentId changes
   useEffect(() => {
@@ -76,28 +77,34 @@ export const CommentsTab = () => {
 
   return (
     <div className="bg-gray-50 p-6 rounded-lg border border-gray-100">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">Add Comment</h3>
-      <div className="mb-6">
-        <Textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          placeholder="Type your comment here..."
-          className="min-h-24 resize-none"
-          maxLength={500}
-        />
-        <div className="mt-2 flex justify-between items-center">
-          <span className="text-sm text-gray-500">
-            {comment.length}/500 characters
-          </span>
-          <Button
-            onClick={handleAddComment}
-            disabled={!comment.trim() || submittingComment}
-            className="w-32"
-          >
-            {submittingComment ? "Posting..." : "Post Comment"}
-          </Button>
-        </div>
-      </div>
+      {!fromReports && (
+        <>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">
+            Add Comment
+          </h3>
+          <div className="mb-6">
+            <Textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Type your comment here..."
+              className="min-h-24 resize-none"
+              maxLength={500}
+            />
+            <div className="mt-2 flex justify-between items-center">
+              <span className="text-sm text-gray-500">
+                {comment.length}/500 characters
+              </span>
+              <Button
+                onClick={handleAddComment}
+                disabled={!comment.trim() || submittingComment}
+                className="w-32"
+              >
+                {submittingComment ? "Posting..." : "Post Comment"}
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
 
       <h3 className="text-lg font-medium text-gray-900 mt-8 mb-4">
         Comment History

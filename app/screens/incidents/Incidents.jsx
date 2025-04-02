@@ -31,6 +31,7 @@ import {
   setIncidentStatus,
 } from "@/app/store/slices/incidentsSlice";
 import { Badge } from "@/components/ui/badge";
+import { setFromReports } from "@/app/store/slices/fromReportsSlice";
 
 const Incidents = () => {
   const router = useRouter();
@@ -58,7 +59,8 @@ const Incidents = () => {
     return incidents
       ?.slice()
       .reverse()
-      .map((item) => ({
+      .map((item, index) => ({
+        sno: index + 1,
         incidentId: item.incident?.id || "-",
         assignmentId: item.id || "-",
         bankId: item.incident?.bank?.id,
@@ -97,10 +99,10 @@ const Incidents = () => {
 
   const columns = [
     {
-      key: "incidentId",
-      header: "ID",
+      key: "sno",
+      header: "S/N",
       render: (row) => (
-        <span className="font-medium text-gray-900">{row.incidentId}</span>
+        <span className="font-medium text-gray-900">{row.sno}</span>
       ),
     },
     { key: "reportedBy", header: "Reported By" },
@@ -213,6 +215,7 @@ const Incidents = () => {
     dispatch(setAssignmentId(row.assignmentId));
     dispatch(setBankId(row.bankId));
     dispatch(setIncidentStatus(row.status));
+    dispatch(setFromReports(false));
 
     router.push(`/dashboard/incidents/incident-detail/${row.incidentId}`);
   };

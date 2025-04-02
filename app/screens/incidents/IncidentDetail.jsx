@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -24,6 +24,7 @@ import {
   AlertCircle,
   Mouse,
   MessageCircle,
+  ChevronLeft,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { IncidentDetailsTab } from "@/components/incidents/IncidentDetailsTab";
@@ -45,6 +46,7 @@ import ActivityLogTab from "@/components/incidents/ActivityLogTab";
 const IncidentDetail = ({ params }) => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const { from } = useParams();
   const incidentId = useSelector((state) => state.incidents.selectedIncidentId);
   const assignmentId = useSelector(
     (state) => state.incidents.selectedAssignmentId
@@ -53,6 +55,8 @@ const IncidentDetail = ({ params }) => {
   const acceptanceStatus = useSelector(
     (state) => state.incidents.selectedIncidentStatus
   );
+
+  const fromReports = useSelector((state) => state.fromReports.fromReports);
 
   const authToken = useSelector((state) => state.auth.token);
 
@@ -88,43 +92,36 @@ const IncidentDetail = ({ params }) => {
       } else if (selectedOption === "police") {
         entityIdToUse = isNpf;
       }
-      console.log(entityIdToUse);
+
       if (!entityIdToUse) {
-        setError("Entity ID not found for the selected option");
-        return;
+        throw new Error("Entity ID not found for the selected option");
       }
 
       if (!selectedSegment || !selectedSegment.id) {
-        setError("No segment available for the selected entity");
-        return;
+        throw new Error("No segment available for the selected entity");
       }
 
       const payload = {
         incident_assignment_id: assignmentId.toString(),
         segment_id: selectedSegment.id.toString(),
         incident_id: incidentId.toString(),
-        // bank_id: selectedBank ? selectedBank.toString() : "",
         bank_id:
           selectedOption === "bank" ? (bankId ? bankId.toString() : "") : "",
         entity_id: entityIdToUse.toString(),
         comment: comment,
       };
 
-      console.log(payload);
-
       const response = await assignIncident(authToken, JSON.stringify(payload));
-
-      if (response?.status === true) {
-        toast.success("Incident assigned successfully");
-      } else {
-        toast.error(response?.message);
+      if (!response.success) {
+        throw new Error(response.message || "Failed to assign incident");
       }
 
+      toast.success(response.message);
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error assigning incident:", error);
-      toast.error("Failed to assign incident");
-      setError(error.message || "Failed to assign incident");
+      toast.error(error.message);
+      setError(error.message);
     } finally {
       setSubmittingComment(false);
     }
@@ -356,11 +353,11 @@ const IncidentDetail = ({ params }) => {
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-3">
           <div className="flex items-center mb-4 md:mb-0">
             <Button variant="ghost" onClick={handleBack} className="mr-4 p-2">
-              <ArrowLeft className="h-5 w-5" />
+              <ChevronLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900">
+            {/* <h1 className="text-2xl font-bold text-gray-900">
               Incident #{incident.id}
-            </h1>
+            </h1> */}
           </div>
           <div className="flex space-x-3">
             {renderStatusBadge(
@@ -404,20 +401,18 @@ const IncidentDetail = ({ params }) => {
             <IncidentDetailsTab incident={incident} />
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-4 mt-8">
-              {!nonAssigningPersonnel && (
+              {!(nonAssigningPersonnel || fromReports) && (
                 <>
                   <Button
                     onClick={() => setIsResponseModalOpen(true)}
                     disabled={hasResponded}
                     className="py-2 h-11 bg-green-600 hover:bg-green-700 text-white"
                   >
-                    <Mouse className="h-5 w-5 mr-2" />
-                    Respond
+                    <Mouse className="h-5 w-5 mr-2" /> Respond
                   </Button>
                   {acceptanceStatus !== "Pending" && (
                     <Button onClick={handleAssignModal} className="py-2 h-11">
-                      <User className="h-5 w-5 mr-2" />
-                      Assign
+                      <User className="h-5 w-5 mr-2" /> Assign
                     </Button>
                   )}
                 </>
