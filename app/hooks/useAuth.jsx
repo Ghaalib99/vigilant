@@ -17,13 +17,16 @@ export const useAuth = () => {
     (state) => state.auth
   );
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
+
   // Login function
   const login = async (email, password) => {
     dispatch(loginStart());
 
     try {
       const response = await fetch(
-        "https://api.npfvigilant.ng/admin/auth/login",
+        `${baseUrl}/admin/auth/login`,
         {
           // mode: "no-cors",
           method: "POST",
@@ -78,7 +81,7 @@ export const useAuth = () => {
     dispatch(otpVerificationStart());
     try {
       const response = await fetch(
-        "https://api.npfvigilant.ng/admin/auth/verify-auth-token",
+        `${baseUrl}/admin/auth/verify-auth-token`,
         {
           method: "POST",
           headers: {

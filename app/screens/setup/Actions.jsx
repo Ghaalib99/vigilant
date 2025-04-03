@@ -43,7 +43,8 @@ const Actions = () => {
   const [comment, setComment] = useState("");
   const [currentPid, setCurrentPid] = useState(null);
 
-  const isInputter = user?.role?.name === "npf-admin-inputter";
+  const isInputter = ["npf-admin-inputter", "nibss-admin-inputter"].includes(user?.role?.name);
+
 
   const fetchActions = async () => {
     try {
