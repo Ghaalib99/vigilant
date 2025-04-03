@@ -1,9 +1,11 @@
-import { User, CreditCard, Tag, FileText, Calendar } from "lucide-react";
+import { User, CreditCard, Tag, FileText, Calendar, Image } from "lucide-react";
 
 export const IncidentDetailsTab = ({ incident }) => {
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
   return (
-    <div className="w-full flex space-x-4">
-      <div className="grid md:grid-cols-2 gap-6 w-full md:w-3/4 lg:w-[60%] bg-gray-50 p-6 rounded-lg border border-gray-100">
+    <div className="w-full grid grid-cols-6 space-x-4">
+      <div className="col-span-4 grid md:grid-cols-2 gap-6  bg-gray-50 p-6 rounded-lg border border-gray-100">
         <div className="col-span-2">
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             Description
@@ -68,9 +70,9 @@ export const IncidentDetailsTab = ({ incident }) => {
             <FileText className="h-4 w-4 mr-1" /> Proof
           </p>
           <p className="text-sm font-medium text-gray-900 bg-white p-3 rounded-md border border-gray-200">
-            {incident.proof ? (
+            {incident.proof_1 ? (
               <a
-                href={incident.proof}
+                href={baseUrl + "/proofs/" + incident.proof_1}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
@@ -84,37 +86,22 @@ export const IncidentDetailsTab = ({ incident }) => {
         </div>
       </div>
       {/* Right Column: Proof */}
-      <div>
+      <div className="col-span-2">
         <h3 className="text-lg font-medium text-gray-900 mb-2">Proof</h3>
-        {incident.proof ? (
-          <div className="bg-white p-4 rounded-md border border-primary h-[300px] ">
-            {incident.proof.endsWith(".pdf") ? (
-              <iframe
-                src={incident.proof}
-                className="w-full h-96 rounded-md"
-                title="Proof Document"
-              />
-            ) : (
-              <img
-                src={incident.proof}
-                alt="Proof"
-                className="w-full h-auto rounded-md"
-              />
-            )}
-            <a
-              href={incident.proof}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 inline-block text-blue-600 hover:underline"
-            >
-              Open in new tab
-            </a>
-          </div>
-        ) : (
-          <p className="text-gray-700 bg-white p-4 rounded-md border border-gray-200">
-            No proof provided
-          </p>
-        )}
+        {incident.proof_1 !== "0" && incident.proof_1 ? (
+  <div className="bg-white rounded-md border h-[500px] w-full">
+    <img
+      src={baseUrl + "/proofs/" + incident.proof_1}
+      alt="Proof"
+      className="w-full h-full rounded-md object-cover"
+    />
+  </div>
+) : (
+  <div className="text-gray-700 bg-white p-4 h-[500px] w-full font-bold text-xl rounded-md border border-gray-200 flex justify-center items-center">
+   <p> No proof provided</p>
+  </div>
+)}
+
       </div>
     </div>
   );
